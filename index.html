@@ -4,15 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BOM Management System</title>
-  <!-- html2canvas included for fallback sharing (not used in our final share logic) -->
+  <!-- html2canvas is included for fallback sharing (not used in final share logic) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" 
           integrity="sha512-BNaRcdTCXce1J3DRXnPNskMsafpFYZQROfV/1z6EaWdd+20SfhJ5BjqNfB2ULmMy+jwEZiLJlg+jWkQ2kztC+g==" 
           crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
-    /* ---------- Base Styles & Reset ---------- */
+    /* ---------- Base & Reset ---------- */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial, sans-serif; background: #f4f7f9; color: #333; padding: 20px; }
-    
+
     /* ---------- Header (Admin & Kitchen) ---------- */
     header {
       display: flex; justify-content: space-between; align-items: center;
@@ -22,11 +22,10 @@
     header h1 { font-size: 1.5rem; }
     .header-actions { display: flex; gap: 15px; align-items: center; }
     .header-actions button { background: none; border: none; color: #fff; cursor: pointer; font-size: 1rem; }
-    
+
     /* ---------- Login Section ---------- */
     #login-section {
-      display: flex; align-items: center; justify-content: center; height: 100vh;
-      background: #e9ecef;
+      display: flex; align-items: center; justify-content: center; height: 100vh; background: #e9ecef;
     }
     .login-container {
       display: flex; width: 90%; max-width: 900px; background: #fff; border-radius: 8px;
@@ -43,13 +42,12 @@
       color: #fff; font-size: 1rem; cursor: pointer;
     }
     .login-form-container button:hover { background: #0056b3; }
-    
+
     /* ---------- Admin Dashboard & Navigation ---------- */
     .admin-dashboard { text-align: center; margin-bottom: 30px; }
     .dashboard-cards { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; }
     .dashboard-card {
-      background: #007BFF; color: #fff; padding: 20px; border-radius: 8px;
-      flex: 1; min-width: 200px;
+      background: #007BFF; color: #fff; padding: 20px; border-radius: 8px; flex: 1; min-width: 200px;
     }
     .dashboard-card h2 { margin-bottom: 10px; }
     .dashboard-card p { font-size: 1.5rem; }
@@ -65,14 +63,14 @@
       background: #6c757d; border: none; border-radius: 4px; color: #fff; cursor: pointer; font-size: 1rem;
     }
     .back-dashboard:hover { background: #5a6268; }
-    
+
     /* ---------- Styled Button for "Add New Food Item" ---------- */
     .new-food-item-btn {
       padding: 12px 20px; background: #ffc107; border: none; border-radius: 4px; color: #333;
       font-size: 1rem; cursor: pointer; margin-top: 10px; transition: background 0.3s;
     }
     .new-food-item-btn:hover { background: #e0a800; }
-    
+
     /* ---------- Kitchen Navigation ---------- */
     .kitchen-nav {
       text-align: center; margin-bottom: 20px;
@@ -83,14 +81,14 @@
     }
     .kitchen-nav button.active { background: #138496; }
     .kitchen-nav button:hover { background: #138496; }
-    
+
     /* ---------- Containers for Management Views ---------- */
     .container {
       max-width: 900px; background: #fff; margin: 20px auto; padding: 20px;
       border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: none;
     }
     h1, h2, h3 { text-align: center; margin-bottom: 20px; }
-    
+
     /* ---------- Table & Form Styles ---------- */
     form { margin-bottom: 20px; }
     form input, form select {
@@ -108,7 +106,7 @@
     .edit-btn { background: #ffc107; color: #fff; }
     .delete-btn { background: #dc3545; color: #fff; }
     .clear-btn { background: #6c757d; color: #fff; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; }
-    
+
     /* ---------- Ingredient Row (in Food Item Form) ---------- */
     .ingredient-row {
       display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;
@@ -120,7 +118,7 @@
       background: #dc3545; color: #fff; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;
     }
     .ingredient-row button:hover { background: #b02a37; }
-    
+
     /* ---------- Process Step Row (in Process Master Form) ---------- */
     .process-step-row {
       display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;
@@ -132,16 +130,18 @@
       background: #dc3545; color: #fff; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;
     }
     .process-step-row button:hover { background: #b02a37; }
-    
+
     /* ---------- Search Input ---------- */
-    .search-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px; }
+    .search-container {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;
+    }
     .search-container input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-    
+
     /* ---------- Kitchen Section Styles ---------- */
     #share-container { text-align: center; margin-top: 20px; }
     #share-container button { margin: 5px; padding: 10px 15px; background: #17a2b8; border: none; border-radius: 4px; color: #fff; cursor: pointer; }
     #share-container button:hover { background: #138496; }
-    
+
     /* ---------- Cook Food View Styles ---------- */
     .quantity-line { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
     .quantity-line input[type="number"] { flex: 1; }
@@ -215,7 +215,7 @@
         <button id="link-process">Manage Process Masters</button>
       </div>
     </div>
-  
+    
     <!-- Manage Food Items -->
     <div id="admin-items-section">
       <div id="items-list-view">
@@ -256,6 +256,7 @@
               <select class="ingredient-unit" required>
                 <option value="">Select UOM</option>
               </select>
+              <button type="button" class="remove-ingredient">Remove</button>
             </div>
           </div>
           <button type="button" id="add-ingredient">Add Ingredient</button>
@@ -264,7 +265,7 @@
         </form>
       </div>
     </div>
-  
+    
     <!-- Manage UOM -->
     <div id="admin-uom-section" style="display:none;">
       <h2>Manage UOM Masters</h2>
@@ -275,7 +276,7 @@
       </form>
       <button id="back-to-dashboard2" class="back-dashboard">Back to Dashboard</button>
     </div>
-  
+    
     <!-- Manage Process Masters -->
     <div id="admin-process-section" style="display:none;">
       <h2>Manage Process Masters</h2>
@@ -324,7 +325,7 @@
       <button id="kitchen-itemlist-btn" class="active">Item List Calculator</button>
       <button id="kitchen-cook-btn">Cook Food</button>
     </div>
-    <!-- BOM Calculator (Item List Calculator) -->
+    <!-- BOM Calculator View -->
     <div id="kitchen-calc-section">
       <h2>BOM Calculator</h2>
       <form id="bom-calc-form">
@@ -561,32 +562,6 @@
       document.getElementById("items-list-view").style.display = "block";
       currentEditKey = null;
     });
-    // Helper function to create a new ingredient row
-    function createIngredientRow() {
-      const uomOptions = getUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("");
-      const row = document.createElement("div");
-      row.className = "ingredient-row";
-      row.innerHTML = `
-        <input type="text" class="ingredient-name" placeholder="Ingredient Name" required />
-        <input type="number" class="ingredient-qty" placeholder="Quantity" required />
-        <select class="ingredient-unit" required>
-          <option value="">Select UOM</option>
-          ${uomOptions}
-        </select>
-        <button type="button" class="remove-ingredient">Remove</button>
-      `;
-      // Attach remove event directly
-      row.querySelector(".remove-ingredient").addEventListener("click", function() {
-        row.remove();
-      });
-      return row;
-    }
-    // Use the helper function when the "Add Ingredient" button is clicked
-    document.getElementById("add-ingredient").addEventListener("click", function() {
-      const container = document.getElementById("ingredients-container");
-      const newRow = createIngredientRow();
-      container.appendChild(newRow);
-    });
     function resetIngredients() {
       const container = document.getElementById("ingredients-container");
       container.innerHTML = `
@@ -600,11 +575,9 @@
           <button type="button" class="remove-ingredient">Remove</button>
         </div>
       `;
-      // Fill the select for the default row
       const defaultSelect = container.querySelector(".ingredient-unit");
-      defaultSelect.innerHTML = `<option value="">Select UOM</option>` + 
-         getUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("");
-      // Attach remove event for the default row
+      defaultSelect.innerHTML = `<option value="">Select UOM</option>` +
+        getUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("");
       const defaultRemove = container.querySelector(".remove-ingredient");
       defaultRemove.addEventListener("click", function() {
         const row = this.closest(".ingredient-row");
@@ -614,11 +587,34 @@
     function renderItemMasterOptions() {
       const uomOptions = getUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("");
       document.getElementById("baseUOM").innerHTML = `<option value="">Select UOM</option>${uomOptions}`;
-      // Update any existing ingredient-unit selects
       document.querySelectorAll(".ingredient-unit").forEach(select => {
         select.innerHTML = `<option value="">Select UOM</option>${uomOptions}`;
       });
     }
+    // Directly attach remove listener when creating a new row
+    function createIngredientRow() {
+      const uomOptions = getUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("");
+      const row = document.createElement("div");
+      row.className = "ingredient-row";
+      row.innerHTML = `
+        <input type="text" class="ingredient-name" placeholder="Ingredient Name" required />
+        <input type="number" class="ingredient-qty" placeholder="Quantity" required />
+        <select class="ingredient-unit" required>
+          <option value="">Select UOM</option>
+          ${uomOptions}
+        </select>
+        <button type="button" class="remove-ingredient">Remove</button>
+      `;
+      row.querySelector(".remove-ingredient").addEventListener("click", function() {
+        row.remove();
+      });
+      return row;
+    }
+    document.getElementById("add-ingredient").addEventListener("click", function() {
+      const container = document.getElementById("ingredients-container");
+      const newRow = createIngredientRow();
+      container.appendChild(newRow);
+    });
     document.getElementById("bom-master-form").addEventListener("submit", function(event) {
       event.preventDefault();
       const foodItemName = document.getElementById("foodItemName").value.trim();
@@ -668,7 +664,6 @@
           container.innerHTML = "<h3>Ingredients</h3>";
           bom.ingredients.forEach(ing => {
             const row = createIngredientRow();
-            // Set values
             row.querySelector(".ingredient-name").value = ing.name;
             row.querySelector(".ingredient-qty").value = ing.qty;
             const select = row.querySelector(".ingredient-unit");
@@ -749,13 +744,14 @@
         }
       }
     }
+    // Fix for "Add New Process Master" button – follow provided snippet
     document.getElementById("show-add-process").addEventListener("click", function() {
       currentProcessKey = null;
       document.getElementById("process-form-title").innerText = "Add New Process Master";
       document.getElementById("admin-process-section").style.display = "none";
       document.getElementById("process-form-section").style.display = "block";
       document.getElementById("process-master-form").reset();
-      resetProcessSteps();
+      resetProcessSteps(); // Ensure the form has default steps
     });
     document.getElementById("cancel-add-process").addEventListener("click", function() {
       document.getElementById("process-master-form").reset();
@@ -765,26 +761,20 @@
       currentProcessKey = null;
     });
     function resetProcessSteps() {
-      document.getElementById("process-steps-container").innerHTML = `
+      const container = document.getElementById("process-steps-container");
+      container.innerHTML = `
         <h3>Process Steps</h3>
         <div class="process-step-row">
           <input type="text" class="process-step" placeholder="Step description" required />
           <button type="button" class="remove-process-step">Remove</button>
         </div>
       `;
-      // Attach remove listener to the default row
-      document.querySelector("#process-steps-container .remove-process-step").addEventListener("click", function() {
+      // Attach remove listener to default row
+      container.querySelector(".remove-process-step").addEventListener("click", function() {
         const row = this.closest(".process-step-row");
         if(row) { row.remove(); }
       });
     }
-    // Event delegation for removing process step rows
-    document.getElementById("process-steps-container").addEventListener("click", function(e) {
-      if (e.target && e.target.classList.contains("remove-process-step")) {
-        const row = e.target.closest(".process-step-row");
-        if (row) { row.remove(); }
-      }
-    });
     document.getElementById("add-process-step").addEventListener("click", function() {
       const container = document.getElementById("process-steps-container");
       const newRow = document.createElement("div");
@@ -794,6 +784,9 @@
         <button type="button" class="remove-process-step">Remove</button>
       `;
       container.appendChild(newRow);
+      newRow.querySelector(".remove-process-step").addEventListener("click", function() {
+        newRow.remove();
+      });
     });
     document.getElementById("process-master-form").addEventListener("submit", function(event) {
       event.preventDefault();
@@ -843,6 +836,9 @@
               <button type="button" class="remove-process-step">Remove</button>
             `;
             container.appendChild(row);
+            row.querySelector(".remove-process-step").addEventListener("click", function() {
+              row.remove();
+            });
           });
           document.getElementById("admin-process-section").style.display = "none";
           document.getElementById("process-form-section").style.display = "block";
@@ -884,21 +880,21 @@
       const factor = prodQty / bom.baseQty;
       let resultHTML = `<h2>BOM for ${bom.foodItem} (${prodQty} ${bom.baseUOM})</h2>`;
       resultHTML += `<table>
-        <thead>
-          <tr>
-            <th>Ingredient</th>
-            <th>Quantity</th>
-            <th>Unit</th>
-          </tr>
-        </thead>
-        <tbody>`;
+          <thead>
+            <tr>
+              <th>Ingredient</th>
+              <th>Quantity</th>
+              <th>Unit</th>
+            </tr>
+          </thead>
+          <tbody>`;
       bom.ingredients.forEach(ing => {
         const scaledQty = ing.qty * factor;
         resultHTML += `<tr>
-            <td>${ing.name}</td>
-            <td>${scaledQty.toFixed(2)}</td>
-            <td>${ing.unit}</td>
-          </tr>`;
+              <td>${ing.name}</td>
+              <td>${scaledQty.toFixed(2)}</td>
+              <td>${ing.unit}</td>
+            </tr>`;
       });
       resultHTML += `</tbody></table>`;
       document.getElementById("bom-result").innerHTML = resultHTML;
@@ -970,7 +966,6 @@
         `;
         tbody.appendChild(tr);
       });
-      // Reset timer values
       cookingStartTime = 0; lastStepTime = 0; stepTimes = [];
       document.getElementById("cooking-timer").innerText = "";
       document.getElementById("total-cook-time").innerText = "";
@@ -993,11 +988,11 @@
           lastStepTime = currentTime;
           stepTimes.push(stepTime);
           const timeSpan = e.target.parentElement.nextElementSibling.nextElementSibling.querySelector(".step-time");
-          timeSpan.innerText = `(${(stepTime / 1000).toFixed(1)} sec)`;
+          timeSpan.innerText = `(${(stepTime/1000).toFixed(1)} sec)`;
           const allChecked = Array.from(document.querySelectorAll(".process-checkbox")).every(chk => chk.checked);
           if (allChecked) {
             const totalTime = Date.now() - cookingStartTime;
-            document.getElementById("total-cook-time").innerText = `Total Cooking Time: ${(totalTime / 1000).toFixed(1)} seconds.`;
+            document.getElementById("total-cook-time").innerText = `Total Cooking Time: ${(totalTime/1000).toFixed(1)} seconds.`;
           }
         }
       }
@@ -1042,4 +1037,3 @@
   </script>
 </body>
 </html>
-
