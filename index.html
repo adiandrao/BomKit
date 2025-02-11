@@ -5,7 +5,7 @@
   <!-- Responsive meta tag -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BOM Management System</title>
-  <!-- Include html2canvas if needed (currently for fallback share in admin/kitchen) -->
+  <!-- Include html2canvas (used in share fallback if needed) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRcdTCXce1J3DRXnPNskMsafpFYZQROfV/1z6EaWdd+20SfhJ5BjqNfB2ULmMy+jwEZiLJlg+jWkQ2kztC+g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
     /* ---------- Base & Reset ---------- */
@@ -37,7 +37,7 @@
       font-size: 1rem;
     }
 
-    /* ---------- Login Page Styles ---------- */
+    /* ---------- Login Page ---------- */
     #login-section {
       display: flex;
       align-items: center;
@@ -272,20 +272,14 @@
     #share-container button:hover { background: #138496; }
 
     /* ---------- Cook Food View Styles ---------- */
-    /* Layout for the "Cook Food" form where Quantity and UOM are on the same line */
     .quantity-line {
       display: flex;
       align-items: center;
       gap: 10px;
+      margin-bottom: 10px;
     }
-    .quantity-line input[type="number"] {
-      flex: 1;
-    }
-    .quantity-line span {
-      font-weight: bold;
-      font-size: 1rem;
-    }
-    /* Table for Process Steps */
+    .quantity-line input[type="number"] { flex: 1; }
+    .quantity-line span { font-weight: bold; font-size: 1rem; }
     #process-steps-table {
       width: 100%;
       border-collapse: collapse;
@@ -296,11 +290,7 @@
       padding: 8px;
       text-align: center;
     }
-    #process-steps-table th {
-      background: #007BFF;
-      color: #fff;
-    }
-    /* ---------- Back Button for Kitchen ---------- */
+    #process-steps-table th { background: #007BFF; color: #fff; }
     .kitchen-back-btn {
       display: inline-block;
       margin: 20px auto;
@@ -494,7 +484,7 @@
         <button id="kitchen-logout-btn">Logout</button>
       </div>
     </header>
-    <!-- Kitchen Navigation with exactly 2 buttons -->
+    <!-- Kitchen Navigation: Exactly 2 buttons -->
     <div class="kitchen-nav">
       <button id="kitchen-itemlist-btn" class="active">Item List Calculator</button>
       <button id="kitchen-cook-btn">Cook Food</button>
@@ -721,7 +711,7 @@
     document.getElementById("back-to-dashboard3").addEventListener("click", showDashboard);
 
     /*********************
-     * Admin: Food Item Masters (CRUD)
+     * Admin: Food Item Masters (CRUD) Management
      *********************/
     let currentEditKey = null;
     function refreshBOMList() {
@@ -787,10 +777,18 @@
     function renderItemMasterOptions() {
       const uomOptions = getUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("");
       document.getElementById("baseUOM").innerHTML = `<option value="">Select UOM</option>${uomOptions}`;
+      // Update all existing ingredient-unit selects (if any)
       document.querySelectorAll(".ingredient-unit").forEach(select => {
         select.innerHTML = `<option value="">Select UOM</option>${uomOptions}`;
       });
     }
+    // Use event delegation for the remove ingredient buttons
+    document.getElementById("ingredients-container").addEventListener("click", function (e) {
+      if (e.target && e.target.classList.contains("remove-ingredient")) {
+        const row = e.target.closest(".ingredient-row");
+        if (row) { row.remove(); }
+      }
+    });
     document.getElementById("bom-master-form").addEventListener("submit", function (event) {
       event.preventDefault();
       const foodItemName = document.getElementById("foodItemName").value.trim();
@@ -851,9 +849,6 @@
               <button type="button" class="remove-ingredient">Remove</button>
             `;
             container.appendChild(row);
-            row.querySelector(".remove-ingredient").addEventListener("click", function () {
-              row.remove();
-            });
           });
           document.getElementById("items-list-view").style.display = "none";
           document.getElementById("bom-form-section").style.display = "block";
@@ -956,7 +951,7 @@
         </div>
       `;
     }
-    // Event delegation for removing process step rows
+    // Use event delegation for removing process steps
     document.getElementById("process-steps-container").addEventListener("click", function(e) {
       if (e.target && e.target.classList.contains("remove-process-step")) {
         const row = e.target.closest(".process-step-row");
@@ -1054,7 +1049,7 @@
       populateCookFoodItems();
     });
 
-    // BOM Calculator (existing) in kitchen
+    // BOM Calculator in kitchen
     document.getElementById("bom-calc-form").addEventListener("submit", function (event) {
       event.preventDefault();
       const foodItemKey = document.getElementById("foodItemSelect").value;
@@ -1119,7 +1114,6 @@
         }
       }
     }
-    // When a food item is selected in BOM Calculator, update the production quantity label.
     document.getElementById("foodItemSelect").addEventListener("change", function () {
       const selectedKey = this.value;
       const prodQtyLabel = document.getElementById("prodQty-label");
@@ -1128,7 +1122,6 @@
         if (bom) { prodQtyLabel.innerText = `Enter Production Quantity (in ${bom.baseUOM}):`; }
       } else { prodQtyLabel.innerText = "Enter Production Quantity:"; }
     });
-    // In Cook Food view, when a food item is selected, update the UOM display next to quantity.
     document.getElementById("cookFoodItem").addEventListener("change", function () {
       const selectedKey = this.value;
       const cookUOMSpan = document.getElementById("cookUOM");
@@ -1145,8 +1138,7 @@
      *********************/
     let cookingStartTime = 0;
     let lastStepTime = 0;
-    let stepTimes = []; // To store time for each step
-
+    let stepTimes = [];
     // When Cook Food form is submitted, generate the process steps table.
     document.getElementById("cook-form").addEventListener("submit", function (event) {
       event.preventDefault();
@@ -1160,7 +1152,6 @@
         alert("No cooking process defined for this food item.");
         return;
       }
-      // Generate table rows for each process step.
       const tbody = document.getElementById("process-steps-body");
       tbody.innerHTML = "";
       proc.processes.forEach((step, index) => {
@@ -1172,7 +1163,7 @@
         `;
         tbody.appendChild(tr);
       });
-      // Reset timer variables and display
+      // Reset timers
       cookingStartTime = 0;
       lastStepTime = 0;
       stepTimes = [];
@@ -1180,17 +1171,14 @@
       document.getElementById("total-cook-time").innerText = "";
       document.getElementById("process-display").style.display = "block";
     });
-
-    // Start Cooking: start the timer
+    // Start Cooking: Start timer
     document.getElementById("start-cooking-btn").addEventListener("click", function () {
       cookingStartTime = Date.now();
       lastStepTime = cookingStartTime;
-      // Disable the start button so it cannot be pressed again.
       this.disabled = true;
-      alert("Cooking started. Now, check each step as you complete it.");
+      alert("Cooking started. Now check each step as you complete it.");
     });
-
-    // Event delegation for process step checkboxes
+    // Process step checkbox event delegation
     document.getElementById("process-steps-body").addEventListener("change", function (e) {
       if (e.target && e.target.classList.contains("process-checkbox")) {
         if (e.target.checked) {
@@ -1198,11 +1186,10 @@
           const stepTime = currentTime - lastStepTime;
           lastStepTime = currentTime;
           stepTimes.push(stepTime);
-          // Update the corresponding cell with the time in seconds.
           const timeSpan = e.target.parentElement.nextElementSibling.nextElementSibling.querySelector(".step-time");
           timeSpan.innerText = `(${(stepTime/1000).toFixed(1)} sec)`;
-          // Check if all checkboxes are checked.
-          const allChecked = Array.from(document.querySelectorAll(".process-checkbox")).every(chk => chk.checked);
+          const checkboxes = document.querySelectorAll(".process-checkbox");
+          const allChecked = Array.from(checkboxes).every(chk => chk.checked);
           if (allChecked) {
             const totalTime = Date.now() - cookingStartTime;
             document.getElementById("total-cook-time").innerText = `Total Cooking Time: ${(totalTime/1000).toFixed(1)} seconds.`;
@@ -1210,22 +1197,20 @@
         }
       }
     });
-
-    // Share functionality in Cook Food view: share process text via WhatsApp and print.
+    // Share functionality in Cook Food view: Share process text via WhatsApp and print.
     document.getElementById("cook-share-btn").addEventListener("click", function () {
       const options = document.getElementById("cook-share-options");
       options.style.display = options.style.display === "none" ? "block" : "none";
     });
     document.getElementById("cook-share-whatsapp").addEventListener("click", function () {
-      // Gather process steps and total time.
-      const steps = Array.from(document.querySelectorAll("#process-steps-body tr")).map(tr => {
+      const rows = Array.from(document.querySelectorAll("#process-steps-body tr")).map(tr => {
         const checkbox = tr.querySelector("input.process-checkbox");
         const stepText = tr.cells[1].innerText;
         const stepTime = tr.cells[2].innerText;
         return `${checkbox.checked ? "[x]" : "[ ]"} ${stepText} ${stepTime}`;
       }).join("\n");
       const totalTime = document.getElementById("total-cook-time").innerText;
-      const shareText = `Cooking Process:\n${steps}\n${totalTime}`;
+      const shareText = `Cooking Process:\n${rows}\n${totalTime}`;
       const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(shareText);
       window.open(url, "_blank");
     });
@@ -1234,14 +1219,12 @@
     });
     // Back to Kitchen Main Menu from Cook Food view.
     document.getElementById("back-to-kitchen-menu").addEventListener("click", function () {
-      // Reset Cook Food view and go back to navigation.
       document.getElementById("process-display").style.display = "none";
       document.getElementById("cook-form").reset();
       document.getElementById("kitchen-calc-section").style.display = "block";
       document.getElementById("kitchen-cook-section").style.display = "none";
       document.getElementById("kitchen-itemlist-btn").classList.add("active");
       document.getElementById("kitchen-cook-btn").classList.remove("active");
-      // Re-enable Start Cooking button for next use.
       document.getElementById("start-cooking-btn").disabled = false;
     });
 
