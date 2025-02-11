@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!-- Ensures proper scaling on mobile devices -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BOM Management System</title>
+  <style>
+    /* Reset and base styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7f9;
+      color: #333;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      background: #fff;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 6px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    h1, h2, h3 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    form input[type="text"],
+    form input[type="password"],
+    form input[type="number"],
+    form select {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    form button {
+      padding: 10px 15px;
+      background: #007BFF;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    form button:hover {
+      background: #0056b3;
+    }
+    /* Table styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+    }
+    table thead {
+      background: #007BFF;
+      color: #fff;
+    }
+    table th, table td {
+      padding: 10px;
+      text-align: center;
+      border: 1px solid #ddd;
+    }
+    /* Ingredient row styling */
+    .ingredient-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .ingredient-row input,
+    .ingredient-row select {
+      flex: 1;
+      min-width: 100px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .ingredient-row button {
+      background: #dc3545;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .ingredient-row button:hover {
+      background: #b02a37;
+    }
+    /* Action buttons in table */
+    .action-btn {
+      margin: 2px;
+      padding: 5px 8px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .edit-btn {
+      background: #ffc107;
+      color: #fff;
+    }
+    .delete-btn {
+      background: #dc3545;
+      color: #fff;
+    }
+    .clear-btn {
+      background: #6c757d;
+      color: #fff;
+      margin-left: 10px;
+    }
+    /* Search input styling */
+    .search-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .search-container input[type="text"] {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-right: 10px;
+    }
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .ingredient-row {
+        flex-direction: column;
+      }
+      .search-container {
+        flex-direction: column;
+      }
+      .search-container input[type="text"] {
+        margin-bottom: 10px;
+        margin-right: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Section -->
+  <div class="container" id="login-section">
+    <h1>Login</h1>
+    <form id="login-form">
+      <label for="userType">User Type:</label>
+      <select id="userType" required>
+        <option value="">Select User Type</option>
+        <option value="admin">Admin</option>
+        <option value="kitchen">Kitchen Manager</option>
+      </select>
+      <input type="text" id="username" placeholder="Username" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+  <!-- Admin Section for BOM Management -->
+  <div class="container" id="admin-section" style="display: none;">
+    <h1>Admin - BOM Management</h1>
+    <!-- BOM List View -->
+    <div id="bom-list-section">
+      <div class="search-container">
+        <input type="text" id="search-box" placeholder="Search BOMs by food item..." />
+        <button id="clear-storage" class="clear-btn">Clear Cache</button>
+      </div>
+      <table id="bom-list-table">
+        <thead>
+          <tr>
+            <th>Food Item</th>
+            <th>Base Qty</th>
+            <th># Ingredients</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Dynamically populated -->
+        </tbody>
+      </table>
+      <button id="show-add-bom">Add New BOM</button>
+    </div>
+    <!-- BOM Form (for Add / Edit) -->
+    <div id="bom-form-section" style="display: none;">
+      <h2 id="form-title">Add New BOM Master</h2>
+      <form id="bom-master-form">
+        <label for="foodItemName">Food Item Name:</label>
+        <input type="text" id="foodItemName" placeholder="e.g., Milkshake" required />
+
+        <label for="baseQty">Base Production Quantity:</label>
+        <input type="number" id="baseQty" placeholder="e.g., 100" required />
+
+        <label for="baseUOM">Base UOM:</label>
+        <select id="baseUOM" required>
+          <option value="">Select UOM</option>
+          <option value="ml">ml</option>
+          <option value="L">L</option>
+          <option value="g">g</option>
+          <option value="kg">kg</option>
+          <option value="pcs">pcs</option>
+        </select>
+
+        <div id="ingredients-container">
+          <h3>Ingredients</h3>
+          <div class="ingredient-row">
+            <input type="text" class="ingredient-name" placeholder="Ingredient Name" required />
+            <input type="number" class="ingredient-qty" placeholder="Quantity" required />
+            <select class="ingredient-unit" required>
+              <option value="">Select UOM</option>
+              <option value="ml">ml</option>
+              <option value="L">L</option>
+              <option value="g">g</option>
+              <option value="kg">kg</option>
+              <option value="pcs">pcs</option>
+            </select>
+          </div>
+        </div>
+        <button type="button" id="add-ingredient">Add Ingredient</button>
+        <button type="submit">Save BOM Master</button>
+        <button type="button" id="cancel-add-bom">Cancel</button>
+      </form>
+    </div>
+    <button id="admin-logout">Logout</button>
+  </div>
+
+  <!-- Kitchen Manager Section for BOM Calculation -->
+  <div class="container" id="kitchen-section" style="display: none;">
+    <h1>Kitchen Manager - BOM Calculator</h1>
+    <form id="bom-calc-form">
+      <label for="foodItemSelect">Select Food Item:</label>
+      <select id="foodItemSelect" required>
+        <option value="">Select Food Item</option>
+      </select>
+      <label for="prodQty" id="prodQty-label">Enter Production Quantity:</label>
+      <input type="number" id="prodQty" placeholder="Enter Production Quantity" required />
+      <button type="submit">Calculate BOM</button>
+    </form>
+    <div id="bom-result"></div>
+    <button id="kitchen-logout">Logout</button>
+  </div>
+
+  <script>
+    /*********************
+     * Data Storage Setup
+     *********************/
+    // Default BOM masters with three examples: Milkshake, Burger, and Pasta.
+    const defaultBOMMaster = {
+      milkshake: {
+        foodItem: "Milkshake",
+        baseQty: 100,
+        baseUOM: "ml",
+        ingredients: [
+          { name: "Milk", qty: 80, unit: "ml" },
+          { name: "Ice Cream", qty: 15, unit: "ml" },
+          { name: "Sugar", qty: 5, unit: "g" }
+        ]
+      },
+      burger: {
+        foodItem: "Burger",
+        baseQty: 1,
+        baseUOM: "pcs",
+        ingredients: [
+          { name: "Bun", qty: 1, unit: "pcs" },
+          { name: "Patty", qty: 1, unit: "pcs" },
+          { name: "Cheese", qty: 1, unit: "pcs" },
+          { name: "Lettuce", qty: 15, unit: "g" }
+        ]
+      },
+      pasta: {
+        foodItem: "Pasta",
+        baseQty: 200,
+        baseUOM: "g",
+        ingredients: [
+          { name: "Pasta", qty: 200, unit: "g" },
+          { name: "Tomato Sauce", qty: 100, unit: "ml" },
+          { name: "Parmesan Cheese", qty: 20, unit: "g" },
+          { name: "Basil", qty: 5, unit: "g" }
+        ]
+      }
+    };
+
+    function getBOMMasters() {
+      const stored = localStorage.getItem("bomMasters");
+      if (stored) {
+        return JSON.parse(stored);
+      } else {
+        localStorage.setItem("bomMasters", JSON.stringify(defaultBOMMaster));
+        return defaultBOMMaster;
+      }
+    }
+
+    function saveBOMMasters(bomMasters) {
+      localStorage.setItem("bomMasters", JSON.stringify(bomMasters));
+    }
+
+    /*********************
+     * Login Functionality
+     *********************/
+    document.getElementById("login-form").addEventListener("submit", function (event) {
+      event.preventDefault();
+      const userType = document.getElementById("userType").value;
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      // Hard-coded credentials:
+      // Admin: username: admin, password: admin123
+      // Kitchen Manager: username: kitchen, password: kitchen123
+      if (userType === "admin") {
+        if (username === "admin" && password === "admin123") {
+          document.getElementById("login-section").style.display = "none";
+          document.getElementById("admin-section").style.display = "block";
+          refreshBOMList();
+        } else {
+          alert("Invalid admin credentials");
+        }
+      } else if (userType === "kitchen") {
+        if (username === "kitchen" && password === "kitchen123") {
+          document.getElementById("login-section").style.display = "none";
+          document.getElementById("kitchen-section").style.display = "block";
+          populateFoodItems();
+        } else {
+          alert("Invalid kitchen manager credentials");
+        }
+      } else {
+        alert("Please select a valid user type.");
+      }
+    });
+
+    /*********************
+     * Admin: BOM List & Management
+     *********************/
+    let currentEditKey = null; // to keep track if we're editing an existing BOM
+
+    // Refresh and render the BOM list with search filter.
+    function refreshBOMList() {
+      const bomMasters = getBOMMasters();
+      const tableBody = document.querySelector("#bom-list-table tbody");
+      tableBody.innerHTML = "";
+      for (const key in bomMasters) {
+        if (bomMasters.hasOwnProperty(key)) {
+          const bom = bomMasters[key];
+          // Create row
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${bom.foodItem}</td>
+            <td>${bom.baseQty} ${bom.baseUOM}</td>
+            <td>${bom.ingredients.length}</td>
+            <td>
+              <button class="action-btn edit-btn" data-key="${key}">Edit</button>
+              <button class="action-btn delete-btn" data-key="${key}">Delete</button>
+            </td>
+          `;
+          tableBody.appendChild(tr);
+        }
+      }
+    }
+
+    // Search filter for BOM list.
+    document.getElementById("search-box").addEventListener("input", function () {
+      const query = this.value.trim().toLowerCase();
+      const rows = document.querySelectorAll("#bom-list-table tbody tr");
+      rows.forEach((row) => {
+        const foodItem = row.cells[0].textContent.toLowerCase();
+        row.style.display = foodItem.indexOf(query) !== -1 ? "" : "none";
+      });
+    });
+
+    // Show BOM form for adding a new BOM.
+    document.getElementById("show-add-bom").addEventListener("click", function () {
+      currentEditKey = null;
+      document.getElementById("form-title").textContent = "Add New BOM Master";
+      document.getElementById("bom-list-section").style.display = "none";
+      document.getElementById("bom-form-section").style.display = "block";
+      document.getElementById("bom-master-form").reset();
+      resetIngredients();
+    });
+
+    // Cancel BOM form.
+    document.getElementById("cancel-add-bom").addEventListener("click", function () {
+      document.getElementById("bom-master-form").reset();
+      resetIngredients();
+      document.getElementById("bom-form-section").style.display = "none";
+      document.getElementById("bom-list-section").style.display = "block";
+      currentEditKey = null;
+    });
+
+    // Reset ingredients container to one default row.
+    function resetIngredients() {
+      document.getElementById("ingredients-container").innerHTML = `
+        <h3>Ingredients</h3>
+        <div class="ingredient-row">
+          <input type="text" class="ingredient-name" placeholder="Ingredient Name" required />
+          <input type="number" class="ingredient-qty" placeholder="Quantity" required />
+          <select class="ingredient-unit" required>
+            <option value="">Select UOM</option>
+            <option value="ml">ml</option>
+            <option value="L">L</option>
+            <option value="g">g</option>
+            <option value="kg">kg</option>
+            <option value="pcs">pcs</option>
+          </select>
+        </div>
+      `;
+    }
+
+    // Handle BOM form submission (for add or edit)
+    document.getElementById("bom-master-form").addEventListener("submit", function (event) {
+      event.preventDefault();
+      const foodItemName = document.getElementById("foodItemName").value.trim();
+      const baseQty = parseFloat(document.getElementById("baseQty").value);
+      const baseUOM = document.getElementById("baseUOM").value;
+      if (!foodItemName || isNaN(baseQty) || baseQty <= 0 || !baseUOM) {
+        alert("Please enter valid food item name, base quantity and select a base UOM.");
+        return;
+      }
+      // Gather ingredients.
+      const ingredientRows = document.querySelectorAll(".ingredient-row");
+      let ingredients = [];
+      for (let row of ingredientRows) {
+        const name = row.querySelector(".ingredient-name").value.trim();
+        const qty = parseFloat(row.querySelector(".ingredient-qty").value);
+        const unit = row.querySelector(".ingredient-unit").value;
+        if (!name || isNaN(qty) || qty <= 0 || !unit) {
+          alert("Please enter valid ingredient details.");
+          return;
+        }
+        ingredients.push({ name, qty, unit });
+      }
+      let bomMasters = getBOMMasters();
+      const key = (currentEditKey) ? currentEditKey : foodItemName.toLowerCase();
+      bomMasters[key] = {
+        foodItem: foodItemName,
+        baseQty: baseQty,
+        baseUOM: baseUOM,
+        ingredients: ingredients,
+      };
+      saveBOMMasters(bomMasters);
+      alert("BOM Master saved successfully!");
+      document.getElementById("bom-master-form").reset();
+      resetIngredients();
+      document.getElementById("bom-form-section").style.display = "none";
+      document.getElementById("bom-list-section").style.display = "block";
+      refreshBOMList();
+      currentEditKey = null;
+    });
+
+    // Add new ingredient row.
+    document.getElementById("add-ingredient").addEventListener("click", function () {
+      const container = document.getElementById("ingredients-container");
+      const newRow = document.createElement("div");
+      newRow.className = "ingredient-row";
+      newRow.innerHTML = `
+        <input type="text" class="ingredient-name" placeholder="Ingredient Name" required />
+        <input type="number" class="ingredient-qty" placeholder="Quantity" required />
+        <select class="ingredient-unit" required>
+          <option value="">Select UOM</option>
+          <option value="ml">ml</option>
+          <option value="L">L</option>
+          <option value="g">g</option>
+          <option value="kg">kg</option>
+          <option value="pcs">pcs</option>
+        </select>
+        <button type="button" class="remove-ingredient">Remove</button>
+      `;
+      container.appendChild(newRow);
+      newRow.querySelector(".remove-ingredient").addEventListener("click", function () {
+        newRow.remove();
+      });
+    });
+
+    // Delegate Edit and Delete actions on BOM list.
+    document.querySelector("#bom-list-table tbody").addEventListener("click", function (event) {
+      const target = event.target;
+      if (target.classList.contains("edit-btn")) {
+        // Edit action: load BOM data into the form.
+        const key = target.getAttribute("data-key");
+        const bomMasters = getBOMMasters();
+        const bom = bomMasters[key];
+        if (bom) {
+          currentEditKey = key;
+          document.getElementById("form-title").textContent = "Edit BOM Master";
+          document.getElementById("foodItemName").value = bom.foodItem;
+          document.getElementById("baseQty").value = bom.baseQty;
+          document.getElementById("baseUOM").value = bom.baseUOM;
+          // Load ingredients.
+          const container = document.getElementById("ingredients-container");
+          container.innerHTML = "<h3>Ingredients</h3>";
+          bom.ingredients.forEach((ing) => {
+            const row = document.createElement("div");
+            row.className = "ingredient-row";
+            row.innerHTML = `
+              <input type="text" class="ingredient-name" placeholder="Ingredient Name" required value="${ing.name}" />
+              <input type="number" class="ingredient-qty" placeholder="Quantity" required value="${ing.qty}" />
+              <select class="ingredient-unit" required>
+                <option value="">Select UOM</option>
+                <option value="ml" ${ing.unit==="ml"?"selected":""}>ml</option>
+                <option value="L" ${ing.unit==="L"?"selected":""}>L</option>
+                <option value="g" ${ing.unit==="g"?"selected":""}>g</option>
+                <option value="kg" ${ing.unit==="kg"?"selected":""}>kg</option>
+                <option value="pcs" ${ing.unit==="pcs"?"selected":""}>pcs</option>
+              </select>
+              <button type="button" class="remove-ingredient">Remove</button>
+            `;
+            container.appendChild(row);
+            row.querySelector(".remove-ingredient").addEventListener("click", function () {
+              row.remove();
+            });
+          });
+          // Show form.
+          document.getElementById("bom-list-section").style.display = "none";
+          document.getElementById("bom-form-section").style.display = "block";
+        }
+      } else if (target.classList.contains("delete-btn")) {
+        // Delete action: remove BOM after confirmation.
+        const key = target.getAttribute("data-key");
+        if (confirm("Are you sure you want to delete this BOM Master?")) {
+          let bomMasters = getBOMMasters();
+          delete bomMasters[key];
+          saveBOMMasters(bomMasters);
+          refreshBOMList();
+        }
+      }
+    });
+
+    // Clear localStorage (cache) and reload the page.
+    document.getElementById("clear-storage").addEventListener("click", function () {
+      if (confirm("This will clear all stored BOM masters. Continue?")) {
+        localStorage.removeItem("bomMasters");
+        location.reload();
+      }
+    });
+
+    /*********************
+     * Kitchen Manager: BOM Calculation
+     *********************/
+    document.getElementById("bom-calc-form").addEventListener("submit", function (event) {
+      event.preventDefault();
+      const foodItemKey = document.getElementById("foodItemSelect").value;
+      const prodQty = parseFloat(document.getElementById("prodQty").value);
+      if (!foodItemKey) {
+        alert("Please select a food item.");
+        return;
+      }
+      if (isNaN(prodQty) || prodQty <= 0) {
+        alert("Please enter a valid production quantity.");
+        return;
+      }
+      const bomMasters = getBOMMasters();
+      const bom = bomMasters[foodItemKey];
+      if (!bom) {
+        alert("BOM Master not found for the selected food item.");
+        return;
+      }
+      const factor = prodQty / bom.baseQty;
+      let resultHTML = `<h2>BOM for ${bom.foodItem} (${prodQty} ${bom.baseUOM})</h2>`;
+      resultHTML += `
+        <table>
+          <thead>
+            <tr>
+              <th>Ingredient</th>
+              <th>Quantity</th>
+              <th>Unit</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      bom.ingredients.forEach((ing) => {
+        const scaledQty = ing.qty * factor;
+        resultHTML += `
+          <tr>
+            <td>${ing.name}</td>
+            <td>${scaledQty.toFixed(2)}</td>
+            <td>${ing.unit}</td>
+          </tr>
+        `;
+      });
+      resultHTML += "</tbody></table>";
+      document.getElementById("bom-result").innerHTML = resultHTML;
+    });
+
+    // Populate food item dropdown for kitchen manager.
+    function populateFoodItems() {
+      const bomMasters = getBOMMasters();
+      const select = document.getElementById("foodItemSelect");
+      select.innerHTML = `<option value="">Select Food Item</option>`;
+      for (const key in bomMasters) {
+        if (bomMasters.hasOwnProperty(key)) {
+          const option = document.createElement("option");
+          option.value = key;
+          option.textContent = bomMasters[key].foodItem;
+          select.appendChild(option);
+        }
+      }
+    }
+
+    // Update production quantity label when a food item is selected.
+    document.getElementById("foodItemSelect").addEventListener("change", function () {
+      const selectedKey = this.value;
+      const prodQtyLabel = document.getElementById("prodQty-label");
+      if (selectedKey) {
+        const bomMasters = getBOMMasters();
+        const bom = bomMasters[selectedKey];
+        if (bom) {
+          prodQtyLabel.textContent = `Enter Production Quantity (in ${bom.baseUOM}):`;
+        }
+      } else {
+        prodQtyLabel.textContent = "Enter Production Quantity:";
+      }
+    });
+
+    /*********************
+     * Logout Functionality
+     *********************/
+    document.getElementById("admin-logout").addEventListener("click", function () {
+      location.reload();
+    });
+    document.getElementById("kitchen-logout").addEventListener("click", function () {
+      location.reload();
+    });
+  </script>
+</body>
+</html>
