@@ -6,9 +6,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BOM Management System</title>
   <style>
-    /* ---------- Base Styles & Reset ---------- */
+    /* ---------- Base & Reset ---------- */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial, sans-serif; background: #f4f7f9; color: #333; padding: 20px; }
+
+    /* ---------- Header for Admin & Kitchen ---------- */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 10px 20px;
+      background: #007BFF;
+      color: #fff;
+      border-radius: 6px;
+    }
+    header h1 { font-size: 1.5rem; }
+    header .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    header .header-actions button {
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    header .header-actions img {
+      width: 24px;
+      height: 24px;
+      vertical-align: middle;
+    }
 
     /* ---------- Login Page Styles ---------- */
     #login-section {
@@ -29,7 +59,6 @@
     }
     .login-image {
       flex: 1;
-      /* Replace the URL below with your direct image URL */
       background: url('kukoo.jpg') no-repeat center center;
       background-size: cover;
       min-height: 300px;
@@ -62,7 +91,7 @@
     }
     .login-form-container button:hover { background: #0056b3; }
 
-    /* ---------- Admin Dashboard Styles ---------- */
+    /* ---------- Dashboard & Navigation ---------- */
     .admin-dashboard {
       text-align: center;
       margin-bottom: 30px;
@@ -71,17 +100,19 @@
       display: flex;
       justify-content: space-around;
       margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 20px;
     }
     .dashboard-card {
       background: #007BFF;
       color: #fff;
       padding: 20px;
-      width: 40%;
       border-radius: 8px;
+      flex: 1;
+      min-width: 200px;
     }
     .dashboard-card h2 { margin-bottom: 10px; }
     .dashboard-card p { font-size: 1.5rem; }
-
     .dashboard-links {
       display: flex;
       justify-content: center;
@@ -95,10 +126,24 @@
       border-radius: 4px;
       color: #fff;
       cursor: pointer;
+      font-size: 1rem;
     }
     .dashboard-links button:hover { background: #218838; }
+    .back-dashboard {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      background: #6c757d;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1rem;
+      width: fit-content;
+    }
+    .back-dashboard:hover { background: #5a6268; }
 
-    /* ---------- Container for Admin, Kitchen, etc. ---------- */
+    /* ---------- Container for CRUD Pages ---------- */
     .container {
       max-width: 900px;
       background: #fff;
@@ -110,10 +155,9 @@
     }
     h1, h2, h3 { text-align: center; margin-bottom: 20px; }
 
-    /* ---------- Table & Form Styles (common) ---------- */
+    /* ---------- Table & Form Styles ---------- */
     form { margin-bottom: 20px; }
     form input[type="text"],
-    form input[type="password"],
     form input[type="number"],
     form select {
       width: 100%;
@@ -138,7 +182,7 @@
     .action-btn { margin: 2px; padding: 5px 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
     .edit-btn { background: #ffc107; color: #fff; }
     .delete-btn { background: #dc3545; color: #fff; }
-    .clear-btn { background: #6c757d; color: #fff; margin-left: 10px; }
+    .clear-btn { background: #6c757d; color: #fff; padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; }
 
     /* ---------- Ingredient Row ---------- */
     .ingredient-row {
@@ -171,13 +215,14 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 10px;
     }
     .search-container input[type="text"] {
       flex: 1;
       padding: 8px;
       border: 1px solid #ccc;
       border-radius: 4px;
-      margin-right: 10px;
     }
 
     /* ---------- Kitchen Section Styles ---------- */
@@ -201,9 +246,9 @@
       .login-container { flex-direction: column; }
       .login-image { height: 200px; }
       .dashboard-cards { flex-direction: column; }
-      .dashboard-card { width: 80%; margin: 0 auto 20px; }
+      .back-dashboard { width: 100%; text-align: center; }
       .search-container { flex-direction: column; }
-      .search-container input[type="text"] { margin-bottom: 10px; margin-right: 0; }
+      .search-container input[type="text"] { margin-bottom: 10px; }
     }
   </style>
 </head>
@@ -211,13 +256,11 @@
   <!-- ---------- Login Section ---------- -->
   <div id="login-section">
     <div class="login-container">
-      <div class="login-image">
-        <!-- Replace with your image URL -->
-      </div>
+      <div class="login-image"></div>
       <div class="login-form-container">
         <h1>Login</h1>
         <form id="login-form">
-          <!-- Removed user-type selection; login type is determined by username -->
+          <!-- No user-type selection; login type is determined by username -->
           <input type="text" id="username" placeholder="Username" required />
           <input type="password" id="password" placeholder="Password" required />
           <button type="submit">Login</button>
@@ -226,11 +269,20 @@
     </div>
   </div>
 
-  <!-- ---------- Admin Section (Dashboard + Masters) ---------- -->
+  <!-- ---------- Admin Section ---------- -->
   <div class="container" id="admin-section">
-    <!-- Dashboard View -->
-    <div id="admin-dashboard">
+    <!-- Header with Clear Cache and Logout -->
+    <header>
       <h1>Admin Dashboard</h1>
+      <div class="header-actions">
+        <button id="clear-cache-dashboard" class="clear-btn">Clear Cache</button>
+        <button id="admin-logout-btn">
+          <img src="logout.png" alt="Logout" /> Logout
+        </button>
+      </div>
+    </header>
+    <!-- Dashboard Summary & Navigation -->
+    <div class="admin-dashboard" id="admin-dashboard">
       <div class="dashboard-cards">
         <div class="dashboard-card">
           <h2>Item Masters</h2>
@@ -249,10 +301,9 @@
 
     <!-- Items Management View -->
     <div id="admin-items-section" style="display: none;">
-      <h1>Manage Food Item Masters</h1>
+      <h2>Manage Food Item Masters</h2>
       <div class="search-container">
         <input type="text" id="search-box" placeholder="Search Food Items..." />
-        <button id="clear-storage" class="clear-btn">Clear Cache</button>
       </div>
       <table id="bom-list-table">
         <thead>
@@ -268,7 +319,7 @@
         </tbody>
       </table>
       <button id="show-add-bom">Add New Food Item</button>
-      <!-- Form for adding/editing items -->
+      <!-- Form for Add/Edit Food Item -->
       <div id="bom-form-section" style="display: none;">
         <h2 id="form-title">Add New Food Item Master</h2>
         <form id="bom-master-form">
@@ -279,7 +330,7 @@
           <label for="baseUOM">Base UOM:</label>
           <select id="baseUOM" required>
             <option value="">Select UOM</option>
-            <!-- UOM options come from UOM list -->
+            <!-- Options will be populated from UOM list -->
           </select>
           <div id="ingredients-container">
             <h3>Ingredients</h3>
@@ -288,21 +339,20 @@
               <input type="number" class="ingredient-qty" placeholder="Quantity" required />
               <select class="ingredient-unit" required>
                 <option value="">Select UOM</option>
-                <!-- UOM options come from UOM list -->
+                <!-- Options will be populated from UOM list -->
               </select>
             </div>
           </div>
           <button type="button" id="add-ingredient">Add Ingredient</button>
           <button type="submit">Save Food Item Master</button>
-          <button type="button" id="cancel-add-bom">Cancel</button>
+          <button type="button" id="cancel-add-bom" class="back-dashboard">Back to Dashboard</button>
         </form>
       </div>
-      <button id="back-to-dashboard1">Back to Dashboard</button>
     </div>
 
     <!-- UOM Management View -->
     <div id="admin-uom-section" style="display: none;">
-      <h1>Manage UOM Masters</h1>
+      <h2>Manage UOM Masters</h2>
       <ul id="uom-list">
         <!-- UOM items will be listed here -->
       </ul>
@@ -310,14 +360,22 @@
         <input type="text" id="new-uom" placeholder="Add new UOM (e.g., oz)" required />
         <button type="submit">Add UOM</button>
       </form>
-      <button id="back-to-dashboard2">Back to Dashboard</button>
+      <button id="back-to-dashboard2" class="back-dashboard">Back to Dashboard</button>
     </div>
-    <button id="admin-logout">Logout</button>
   </div>
 
   <!-- ---------- Kitchen Manager Section ---------- -->
   <div class="container" id="kitchen-section">
-    <h1>Kitchen Manager - BOM Calculator</h1>
+    <!-- Header for Kitchen with Logout -->
+    <header>
+      <h1>Kitchen Manager</h1>
+      <div class="header-actions">
+        <button id="kitchen-logout-btn">
+          <img src="logout.png" alt="Logout" /> Logout
+        </button>
+      </div>
+    </header>
+    <h2>BOM Calculator</h2>
     <form id="bom-calc-form">
       <label for="foodItemSelect">Select Food Item:</label>
       <select id="foodItemSelect" required>
@@ -335,7 +393,6 @@
         <button id="print-bom">Print BOM</button>
       </div>
     </div>
-    <button id="kitchen-logout">Logout</button>
   </div>
 
   <script>
@@ -415,13 +472,11 @@
      * Admin Dashboard & Navigation
      *********************/
     function showDashboard() {
-      // Update counts
       const bomMasters = getBOMMasters();
-      const itemCount = Object.keys(bomMasters).length;
-      document.getElementById("item-count").innerText = itemCount;
+      document.getElementById("item-count").innerText = Object.keys(bomMasters).length;
       const uomList = getUOMList();
       document.getElementById("uom-count").innerText = uomList.length;
-      // Show dashboard and hide management sections
+      // Show dashboard, hide other management views
       document.getElementById("admin-dashboard").style.display = "block";
       document.getElementById("admin-items-section").style.display = "none";
       document.getElementById("admin-uom-section").style.display = "none";
@@ -429,7 +484,7 @@
     document.getElementById("link-items").addEventListener("click", function () {
       document.getElementById("admin-dashboard").style.display = "none";
       document.getElementById("admin-items-section").style.display = "block";
-      renderItemMasterOptions(); // fill UOM dropdowns in form
+      renderItemMasterOptions();
       refreshBOMList();
     });
     document.getElementById("link-uom").addEventListener("click", function () {
@@ -437,10 +492,13 @@
       document.getElementById("admin-uom-section").style.display = "block";
       renderUOMList();
     });
-    // Back buttons to dashboard
-    document.getElementById("back-to-dashboard1").addEventListener("click", showDashboard);
-    document.getElementById("back-to-dashboard2").addEventListener("click", showDashboard);
-    document.getElementById("admin-logout").addEventListener("click", function () { location.reload(); });
+    document.getElementById("clear-cache-dashboard").addEventListener("click", function () {
+      if (confirm("This will clear all stored Food Item Masters. Continue?")) {
+        localStorage.removeItem("bomMasters");
+        location.reload();
+      }
+    });
+    document.getElementById("admin-logout-btn").addEventListener("click", function () { location.reload(); });
 
     /*********************
      * Admin: Food Item Masters (CRUD) Management
@@ -478,7 +536,7 @@
     document.getElementById("show-add-bom").addEventListener("click", function () {
       currentEditKey = null;
       document.getElementById("form-title").innerText = "Add New Food Item Master";
-      document.getElementById("bom-list-section").style.display = "none";
+      document.getElementById("bom-list-table").parentElement.style.display = "none";
       document.getElementById("bom-form-section").style.display = "block";
       document.getElementById("bom-master-form").reset();
       resetIngredients();
@@ -487,7 +545,7 @@
       document.getElementById("bom-master-form").reset();
       resetIngredients();
       document.getElementById("bom-form-section").style.display = "none";
-      document.getElementById("bom-list-section").style.display = "block";
+      document.getElementById("admin-items-section").style.display = "block";
       currentEditKey = null;
     });
     function resetIngredients() {
@@ -505,12 +563,9 @@
       `;
     }
     function renderItemMasterOptions() {
-      // Populate the base UOM dropdown in the form using the UOM list.
       const uomOptions = getUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("");
       document.getElementById("baseUOM").innerHTML = `<option value="">Select UOM</option>${uomOptions}`;
-      // Also update the ingredient UOM dropdown options.
-      const selects = document.querySelectorAll(".ingredient-unit");
-      selects.forEach(select => {
+      document.querySelectorAll(".ingredient-unit").forEach(select => {
         select.innerHTML = `<option value="">Select UOM</option>${uomOptions}`;
       });
     }
@@ -520,7 +575,7 @@
       const baseQty = parseFloat(document.getElementById("baseQty").value);
       const baseUOM = document.getElementById("baseUOM").value;
       if (!foodItemName || isNaN(baseQty) || baseQty <= 0 || !baseUOM) {
-        alert("Please enter valid Food Item name, base quantity, and select a base UOM.");
+        alert("Please enter a valid Food Item name, base quantity, and select a base UOM.");
         return;
       }
       const ingredientRows = document.querySelectorAll(".ingredient-row");
@@ -536,14 +591,14 @@
         ingredients.push({ name, qty, unit });
       }
       let bomMasters = getBOMMasters();
-      const key = (currentEditKey) ? currentEditKey : foodItemName.toLowerCase();
+      const key = currentEditKey ? currentEditKey : foodItemName.toLowerCase();
       bomMasters[key] = { foodItem: foodItemName, baseQty: baseQty, baseUOM: baseUOM, ingredients: ingredients };
       saveBOMMasters(bomMasters);
       alert("Food Item Master saved successfully!");
       document.getElementById("bom-master-form").reset();
       resetIngredients();
       document.getElementById("bom-form-section").style.display = "none";
-      document.getElementById("bom-list-section").style.display = "block";
+      document.getElementById("admin-items-section").style.display = "block";
       refreshBOMList();
       currentEditKey = null;
     });
@@ -574,9 +629,11 @@
               <button type="button" class="remove-ingredient">Remove</button>
             `;
             container.appendChild(row);
-            row.querySelector(".remove-ingredient").addEventListener("click", function () { row.remove(); });
+            row.querySelector(".remove-ingredient").addEventListener("click", function () {
+              row.remove();
+            });
           });
-          document.getElementById("bom-list-section").style.display = "none";
+          document.getElementById("admin-items-section").style.display = "none";
           document.getElementById("bom-form-section").style.display = "block";
         }
       } else if (target.classList.contains("delete-btn")) {
@@ -589,12 +646,6 @@
         }
       }
     });
-    document.getElementById("clear-storage").addEventListener("click", function () {
-      if (confirm("This will clear all stored Food Item Masters. Continue?")) {
-        localStorage.removeItem("bomMasters");
-        location.reload();
-      }
-    });
 
     /*********************
      * Admin: UOM Management (CRUD)
@@ -605,14 +656,12 @@
       uomListContainer.innerHTML = "";
       uomList.forEach((uom, index) => {
         const li = document.createElement("li");
+        li.style.marginBottom = "10px";
         li.textContent = uom + " ";
         const delBtn = document.createElement("button");
         delBtn.textContent = "Delete";
-        delBtn.style.background = "#dc3545";
-        delBtn.style.color = "#fff";
-        delBtn.style.border = "none";
-        delBtn.style.borderRadius = "4px";
-        delBtn.style.cursor = "pointer";
+        delBtn.className = "clear-btn";
+        delBtn.style.padding = "5px 10px";
         delBtn.addEventListener("click", function () {
           if (confirm(`Delete UOM "${uom}"?`)) {
             const updated = uomList.filter((_, i) => i !== index);
@@ -709,7 +758,7 @@
     document.getElementById("print-bom").addEventListener("click", function () {
       window.print();
     });
-    document.getElementById("kitchen-logout").addEventListener("click", function () { location.reload(); });
+    document.getElementById("kitchen-logout-btn").addEventListener("click", function () { location.reload(); });
   </script>
 </body>
 </html>
