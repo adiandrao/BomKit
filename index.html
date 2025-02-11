@@ -34,11 +34,6 @@
       cursor: pointer;
       font-size: 1rem;
     }
-    header .header-actions img {
-      width: 24px;
-      height: 24px;
-      vertical-align: middle;
-    }
 
     /* ---------- Login Page Styles ---------- */
     #login-section {
@@ -259,7 +254,7 @@
       <div class="login-form-container">
         <h1>Login</h1>
         <form id="login-form">
-          <!-- No user-type selection; login type is determined by username -->
+          <!-- Login type is determined by username -->
           <input type="text" id="username" placeholder="Username" required />
           <input type="password" id="password" placeholder="Password" required />
           <button type="submit">Login</button>
@@ -270,14 +265,12 @@
 
   <!-- ---------- Admin Section ---------- -->
   <div class="container" id="admin-section">
-    <!-- Header with Clear Cache and Logout -->
+    <!-- Header with Clear Cache and Logout (no image) -->
     <header>
       <h1>Admin Dashboard</h1>
       <div class="header-actions">
         <button id="clear-cache-dashboard" class="clear-btn">Clear Cache</button>
-        <button id="admin-logout-btn">
-          <img src="logout.png" alt="Logout" /> Logout
-        </button>
+        <button id="admin-logout-btn">Logout</button>
       </div>
     </header>
     <!-- Dashboard Summary & Navigation -->
@@ -320,8 +313,9 @@
           </tbody>
         </table>
         <button id="show-add-bom">Add New Food Item</button>
+        <button id="back-to-dashboard1" class="back-dashboard">Back to Dashboard</button>
       </div>
-      <!-- Form View Container -->
+      <!-- Form View Container (for Add/Edit) -->
       <div id="bom-form-section" style="display: none;">
         <h2 id="form-title">Add New Food Item Master</h2>
         <form id="bom-master-form">
@@ -347,7 +341,7 @@
           </div>
           <button type="button" id="add-ingredient">Add Ingredient</button>
           <button type="submit">Save Food Item Master</button>
-          <button type="button" id="cancel-add-bom" class="back-dashboard">Back to Dashboard</button>
+          <button type="button" id="cancel-add-bom" class="back-dashboard">Back to List</button>
         </form>
       </div>
     </div>
@@ -368,13 +362,11 @@
 
   <!-- ---------- Kitchen Manager Section ---------- -->
   <div class="container" id="kitchen-section">
-    <!-- Header for Kitchen with Logout -->
+    <!-- Header for Kitchen -->
     <header>
       <h1>Kitchen Manager</h1>
       <div class="header-actions">
-        <button id="kitchen-logout-btn">
-          <img src="logout.png" alt="Logout" /> Logout
-        </button>
+        <button id="kitchen-logout-btn">Logout</button>
       </div>
     </header>
     <h2>BOM Calculator</h2>
@@ -478,7 +470,7 @@
       document.getElementById("item-count").innerText = Object.keys(bomMasters).length;
       const uomList = getUOMList();
       document.getElementById("uom-count").innerText = uomList.length;
-      // Show dashboard, hide other management views
+      // Show dashboard; hide other management views
       document.getElementById("admin-dashboard").style.display = "block";
       document.getElementById("admin-items-section").style.display = "none";
       document.getElementById("admin-uom-section").style.display = "none";
@@ -486,7 +478,7 @@
     document.getElementById("link-items").addEventListener("click", function () {
       document.getElementById("admin-dashboard").style.display = "none";
       document.getElementById("admin-items-section").style.display = "block";
-      // Show the list view and hide the form view
+      // Show list view and hide form view
       document.getElementById("items-list-view").style.display = "block";
       document.getElementById("bom-form-section").style.display = "none";
       renderItemMasterOptions();
@@ -504,6 +496,9 @@
       }
     });
     document.getElementById("admin-logout-btn").addEventListener("click", function () { location.reload(); });
+    // Back buttons for admin management
+    document.getElementById("back-to-dashboard1").addEventListener("click", showDashboard);
+    document.getElementById("back-to-dashboard2").addEventListener("click", showDashboard);
 
     /*********************
      * Admin: Food Item Masters (CRUD) Management
@@ -538,7 +533,7 @@
         row.style.display = foodItem.indexOf(query) !== -1 ? "" : "none";
       });
     });
-    // When "Add New Food Item" is clicked, hide the list view and show the form view.
+    // Show form view when "Add New Food Item" is clicked.
     document.getElementById("show-add-bom").addEventListener("click", function () {
       currentEditKey = null;
       document.getElementById("form-title").innerText = "Add New Food Item Master";
@@ -547,7 +542,7 @@
       document.getElementById("bom-master-form").reset();
       resetIngredients();
     });
-    // "Back to Dashboard" (in this case, back to the list view) button in the form view.
+    // Cancel (Back to List) in form view.
     document.getElementById("cancel-add-bom").addEventListener("click", function () {
       document.getElementById("bom-master-form").reset();
       resetIngredients();
