@@ -5,16 +5,14 @@
   <!-- Responsive meta tag -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BOM Management System</title>
-  <!-- Include html2canvas if needed (currently not used in our share logic) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" 
-    integrity="sha512-BNaRcdTCXce1J3DRXnPNskMsafpFYZQROfV/1z6EaWdd+20SfhJ5BjqNfB2ULmMy+jwEZiLJlg+jWkQ2kztC+g==" 
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- Include html2canvas if needed (currently for fallback share in admin/kitchen) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRcdTCXce1J3DRXnPNskMsafpFYZQROfV/1z6EaWdd+20SfhJ5BjqNfB2ULmMy+jwEZiLJlg+jWkQ2kztC+g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
     /* ---------- Base & Reset ---------- */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial, sans-serif; background: #f4f7f9; color: #333; padding: 20px; }
 
-    /* ---------- Header (for Admin and Kitchen) ---------- */
+    /* ---------- Header for Admin & Kitchen ---------- */
     header {
       display: flex;
       justify-content: space-between;
@@ -39,7 +37,7 @@
       font-size: 1rem;
     }
 
-    /* ---------- Login Page ---------- */
+    /* ---------- Login Page Styles ---------- */
     #login-section {
       display: flex;
       align-items: center;
@@ -66,10 +64,7 @@
       flex: 1;
       padding: 30px;
     }
-    .login-form-container h1 {
-      margin-bottom: 20px;
-      text-align: center;
-    }
+    .login-form-container h1 { margin-bottom: 20px; text-align: center; }
     .login-form-container input[type="text"],
     .login-form-container input[type="password"] {
       width: 100%;
@@ -90,7 +85,7 @@
     }
     .login-form-container button:hover { background: #0056b3; }
 
-    /* ---------- Dashboard & Navigation for Admin ---------- */
+    /* ---------- Admin Dashboard & Navigation ---------- */
     .admin-dashboard {
       text-align: center;
       margin-bottom: 30px;
@@ -112,13 +107,14 @@
     }
     .dashboard-card h2 { margin-bottom: 10px; }
     .dashboard-card p { font-size: 1.5rem; }
-    .dashboard-links {
+    .dashboard-links, .admin-extra-links {
       display: flex;
       justify-content: center;
       gap: 20px;
       margin-bottom: 20px;
     }
-    .dashboard-links button {
+    .dashboard-links button,
+    .admin-extra-links button {
       padding: 10px 20px;
       background: #28a745;
       border: none;
@@ -128,26 +124,10 @@
       font-size: 1rem;
     }
     .dashboard-links button:hover { background: #218838; }
-
-    /* ---------- Admin Additional Menu for Process Masters ---------- */
-    .admin-extra-links {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
     .admin-extra-links button {
-      padding: 10px 20px;
       background: #17a2b8;
-      border: none;
-      border-radius: 4px;
-      color: #fff;
-      cursor: pointer;
-      font-size: 1rem;
     }
     .admin-extra-links button:hover { background: #138496; }
-
-    /* ---------- Back Button ---------- */
     .back-dashboard {
       display: inline-block;
       margin: 20px auto;
@@ -291,12 +271,55 @@
     }
     #share-container button:hover { background: #138496; }
 
+    /* ---------- Cook Food View Styles ---------- */
+    /* Layout for the "Cook Food" form where Quantity and UOM are on the same line */
+    .quantity-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .quantity-line input[type="number"] {
+      flex: 1;
+    }
+    .quantity-line span {
+      font-weight: bold;
+      font-size: 1rem;
+    }
+    /* Table for Process Steps */
+    #process-steps-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    #process-steps-table th, #process-steps-table td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    #process-steps-table th {
+      background: #007BFF;
+      color: #fff;
+    }
+    /* ---------- Back Button for Kitchen ---------- */
+    .kitchen-back-btn {
+      display: inline-block;
+      margin: 20px auto;
+      padding: 10px 20px;
+      background: #6c757d;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .kitchen-back-btn:hover { background: #5a6268; }
+
     /* ---------- Responsive ---------- */
     @media (max-width: 600px) {
       .login-container { flex-direction: column; }
       .login-image { height: 200px; }
       .dashboard-cards { flex-direction: column; }
-      .back-dashboard { width: 100%; text-align: center; }
+      .back-dashboard, .kitchen-back-btn { width: 100%; text-align: center; }
       .search-container { flex-direction: column; }
       .search-container input[type="text"] { margin-bottom: 10px; }
       .kitchen-nav { flex-direction: column; }
@@ -471,12 +494,12 @@
         <button id="kitchen-logout-btn">Logout</button>
       </div>
     </header>
-    <!-- Kitchen Navigation -->
+    <!-- Kitchen Navigation with exactly 2 buttons -->
     <div class="kitchen-nav">
       <button id="kitchen-itemlist-btn" class="active">Item List Calculator</button>
-      <button id="kitchen-cook-btn">Cook Item</button>
+      <button id="kitchen-cook-btn">Cook Food</button>
     </div>
-    <!-- Item List Calculator View (existing BOM Calculator) -->
+    <!-- Item List Calculator View (BOM Calculator) -->
     <div id="kitchen-calc-section">
       <h2>BOM Calculator</h2>
       <form id="bom-calc-form">
@@ -497,28 +520,40 @@
         </div>
       </div>
     </div>
-    <!-- Cook Item View -->
+    <!-- Cook Food View -->
     <div id="kitchen-cook-section" style="display: none;">
-      <h2>Cook Item</h2>
-      <!-- Form to plan cooking -->
+      <h2>Cook Food</h2>
+      <!-- Cook Food Form -->
       <form id="cook-form">
         <label for="cookFoodItem">Select Food Item:</label>
         <select id="cookFoodItem" required>
           <option value="">Select Food Item</option>
         </select>
-        <label for="cookQty">Quantity to Cook:</label>
-        <input type="number" id="cookQty" placeholder="Enter quantity" required />
+        <div class="quantity-line">
+          <label for="cookQty">Quantity to Cook:</label>
+          <input type="number" id="cookQty" placeholder="Enter quantity" required />
+          <span id="cookUOM"></span>
+        </div>
         <button type="submit">Generate Cooking Process</button>
       </form>
-      <!-- Process steps will be displayed here -->
+      <!-- Process Steps Display -->
       <div id="process-display" style="display: none;">
         <h3>Cooking Process</h3>
-        <ol id="process-steps-list">
-          <!-- Each step will be a list item with a checkbox and a span for time -->
-        </ol>
+        <table id="process-steps-table">
+          <thead>
+            <tr>
+              <th>Complete</th>
+              <th>Process Step</th>
+              <th>Time Taken (sec)</th>
+            </tr>
+          </thead>
+          <tbody id="process-steps-body">
+            <!-- Process steps will be inserted here -->
+          </tbody>
+        </table>
         <button id="start-cooking-btn">Start Cooking</button>
-        <div id="cooking-timer" style="margin-top: 10px;"></div>
-        <div id="process-total-time" style="margin-top: 10px; font-weight: bold;"></div>
+        <div id="cooking-timer" style="margin-top: 10px; font-weight: bold;"></div>
+        <div id="total-cook-time" style="margin-top: 10px; font-weight: bold;"></div>
         <div id="cook-share-container" style="margin-top: 10px;">
           <button id="cook-share-btn">Share Process</button>
           <div id="cook-share-options" style="display: none; margin-top: 10px;">
@@ -526,6 +561,7 @@
             <button id="cook-print">Print Process</button>
           </div>
         </div>
+        <button id="back-to-kitchen-menu" class="kitchen-back-btn">Back to Menu</button>
       </div>
     </div>
   </div>
@@ -534,7 +570,7 @@
     /*********************
      * Data Storage Setup
      *********************/
-    // Default Food Item masters (BOMs) with three examples.
+    // Default Food Item masters (BOMs)
     const defaultBOMMaster = {
       milkshake: {
         foodItem: "Milkshake",
@@ -632,7 +668,7 @@
       } else if (username === "kitchen" && password === "kitchen123") {
         document.getElementById("login-section").style.display = "none";
         document.getElementById("kitchen-section").style.display = "block";
-        // Populate both BOM Calculator and Cook Item food item lists
+        // Populate both BOM Calculator and Cook Food dropdowns
         populateFoodItems();
         populateCookFoodItems();
       } else { alert("Invalid credentials!"); }
@@ -648,7 +684,7 @@
       document.getElementById("uom-count").innerText = uomList.length;
       const processMasters = getProcessMasters();
       document.getElementById("process-count").innerText = Object.keys(processMasters).length;
-      // Show dashboard; hide other management views
+      // Show dashboard; hide other views
       document.getElementById("admin-dashboard").style.display = "block";
       document.getElementById("admin-items-section").style.display = "none";
       document.getElementById("admin-uom-section").style.display = "none";
@@ -679,13 +715,13 @@
       }
     });
     document.getElementById("admin-logout-btn").addEventListener("click", function () { location.reload(); });
-    // Back buttons for admin management
+    // Back buttons for admin
     document.getElementById("back-to-dashboard1").addEventListener("click", showDashboard);
     document.getElementById("back-to-dashboard2").addEventListener("click", showDashboard);
     document.getElementById("back-to-dashboard3").addEventListener("click", showDashboard);
 
     /*********************
-     * Admin: Food Item Masters (CRUD) Management
+     * Admin: Food Item Masters (CRUD)
      *********************/
     let currentEditKey = null;
     function refreshBOMList() {
@@ -834,6 +870,44 @@
     });
 
     /*********************
+     * Admin: UOM Management (CRUD)
+     *********************/
+    function renderUOMList() {
+      const uomList = getUOMList();
+      const uomListContainer = document.getElementById("uom-list");
+      uomListContainer.innerHTML = "";
+      uomList.forEach((uom, index) => {
+        const li = document.createElement("li");
+        li.style.marginBottom = "10px";
+        li.textContent = uom + " ";
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.className = "clear-btn";
+        delBtn.style.padding = "5px 10px";
+        delBtn.addEventListener("click", function () {
+          if (confirm(`Delete UOM "${uom}"?`)) {
+            const updated = uomList.filter((_, i) => i !== index);
+            saveUOMList(updated);
+            renderUOMList();
+          }
+        });
+        li.appendChild(delBtn);
+        uomListContainer.appendChild(li);
+      });
+    }
+    document.getElementById("uom-form").addEventListener("submit", function (event) {
+      event.preventDefault();
+      const newUOM = document.getElementById("new-uom").value.trim();
+      if (!newUOM) { alert("Enter a valid UOM."); return; }
+      const uomList = getUOMList();
+      if (uomList.includes(newUOM)) { alert("UOM already exists!"); return; }
+      uomList.push(newUOM);
+      saveUOMList(uomList);
+      document.getElementById("new-uom").value = "";
+      renderUOMList();
+    });
+
+    /*********************
      * Admin: Process Masters (CRUD) Management
      *********************/
     let currentProcessKey = null;
@@ -882,7 +956,7 @@
         </div>
       `;
     }
-    // Use event delegation for removing process steps in the process steps container
+    // Event delegation for removing process step rows
     document.getElementById("process-steps-container").addEventListener("click", function(e) {
       if (e.target && e.target.classList.contains("remove-process-step")) {
         const row = e.target.closest(".process-step-row");
@@ -927,7 +1001,6 @@
       renderProcessMasters();
       currentProcessKey = null;
     });
-    // Process Masters table event delegation
     document.querySelector("#process-table tbody").addEventListener("click", function (event) {
       const target = event.target;
       if (target.classList.contains("edit-btn")) {
@@ -964,9 +1037,9 @@
     });
 
     /*********************
-     * Kitchen Manager: BOM Calculator & Cook Item
+     * Kitchen Manager: BOM Calculator & Cook Food
      *********************/
-    // Kitchen navigation for switching between views
+    // Kitchen navigation: toggle between BOM Calculator and Cook Food views.
     document.getElementById("kitchen-itemlist-btn").addEventListener("click", function () {
       this.classList.add("active");
       document.getElementById("kitchen-cook-btn").classList.remove("active");
@@ -1032,7 +1105,7 @@
         }
       }
     }
-    // For the Cook Item view, use a separate dropdown.
+    // For Cook Food view, populate a separate dropdown.
     function populateCookFoodItems() {
       const bomMasters = getBOMMasters();
       const select = document.getElementById("cookFoodItem");
@@ -1046,6 +1119,7 @@
         }
       }
     }
+    // When a food item is selected in BOM Calculator, update the production quantity label.
     document.getElementById("foodItemSelect").addEventListener("change", function () {
       const selectedKey = this.value;
       const prodQtyLabel = document.getElementById("prodQty-label");
@@ -1054,15 +1128,26 @@
         if (bom) { prodQtyLabel.innerText = `Enter Production Quantity (in ${bom.baseUOM}):`; }
       } else { prodQtyLabel.innerText = "Enter Production Quantity:"; }
     });
+    // In Cook Food view, when a food item is selected, update the UOM display next to quantity.
+    document.getElementById("cookFoodItem").addEventListener("change", function () {
+      const selectedKey = this.value;
+      const cookUOMSpan = document.getElementById("cookUOM");
+      if (selectedKey) {
+        const bom = getBOMMasters()[selectedKey];
+        if (bom) { cookUOMSpan.innerText = bom.baseUOM; }
+      } else {
+        cookUOMSpan.innerText = "";
+      }
+    });
 
     /*********************
-     * Kitchen: Cook Item Functionality
+     * Kitchen: Cook Food Functionality
      *********************/
     let cookingStartTime = 0;
     let lastStepTime = 0;
-    let processStepTimes = []; // Array to hold time taken for each step
+    let stepTimes = []; // To store time for each step
 
-    // When cook form is submitted, generate process steps from process masters.
+    // When Cook Food form is submitted, generate the process steps table.
     document.getElementById("cook-form").addEventListener("submit", function (event) {
       event.preventDefault();
       const foodItemKey = document.getElementById("cookFoodItem").value;
@@ -1072,73 +1157,92 @@
       const processMasters = getProcessMasters();
       const proc = processMasters[foodItemKey];
       if (!proc) {
-        alert("No process defined for this food item.");
+        alert("No cooking process defined for this food item.");
         return;
       }
-      // Generate the process steps list.
-      const stepsList = document.getElementById("process-steps-list");
-      stepsList.innerHTML = "";
+      // Generate table rows for each process step.
+      const tbody = document.getElementById("process-steps-body");
+      tbody.innerHTML = "";
       proc.processes.forEach((step, index) => {
-        const li = document.createElement("li");
-        li.innerHTML = `<input type="checkbox" class="process-checkbox" data-index="${index}" /> ${step} 
-                        <span class="step-time" style="margin-left:10px; color:#007BFF;"></span>`;
-        stepsList.appendChild(li);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><input type="checkbox" class="process-checkbox" data-index="${index}" /></td>
+          <td>${step}</td>
+          <td><span class="step-time"></span></td>
+        `;
+        tbody.appendChild(tr);
       });
-      // Reset timer info.
+      // Reset timer variables and display
       cookingStartTime = 0;
       lastStepTime = 0;
-      processStepTimes = [];
+      stepTimes = [];
       document.getElementById("cooking-timer").innerText = "";
-      document.getElementById("process-total-time").innerText = "";
+      document.getElementById("total-cook-time").innerText = "";
       document.getElementById("process-display").style.display = "block";
     });
 
-    // When "Start Cooking" is clicked, start the timer.
+    // Start Cooking: start the timer
     document.getElementById("start-cooking-btn").addEventListener("click", function () {
       cookingStartTime = Date.now();
       lastStepTime = cookingStartTime;
-      // Disable the start button so timer is not restarted.
+      // Disable the start button so it cannot be pressed again.
       this.disabled = true;
-      alert("Cooking started. Please check off each step as you complete it.");
+      alert("Cooking started. Now, check each step as you complete it.");
     });
 
-    // Event delegation for checkboxes in the process steps list.
-    document.getElementById("process-steps-list").addEventListener("change", function (e) {
+    // Event delegation for process step checkboxes
+    document.getElementById("process-steps-body").addEventListener("change", function (e) {
       if (e.target && e.target.classList.contains("process-checkbox")) {
-        // Only record time if the checkbox is being checked.
         if (e.target.checked) {
           const currentTime = Date.now();
           const stepTime = currentTime - lastStepTime;
           lastStepTime = currentTime;
-          processStepTimes.push(stepTime);
-          // Display time for this step in seconds.
-          e.target.parentElement.querySelector(".step-time").innerText = `(${(stepTime/1000).toFixed(1)} sec)`;
-          // If all checkboxes are checked, calculate total time.
-          const checkboxes = document.querySelectorAll(".process-checkbox");
-          const allChecked = Array.from(checkboxes).every(chk => chk.checked);
+          stepTimes.push(stepTime);
+          // Update the corresponding cell with the time in seconds.
+          const timeSpan = e.target.parentElement.nextElementSibling.nextElementSibling.querySelector(".step-time");
+          timeSpan.innerText = `(${(stepTime/1000).toFixed(1)} sec)`;
+          // Check if all checkboxes are checked.
+          const allChecked = Array.from(document.querySelectorAll(".process-checkbox")).every(chk => chk.checked);
           if (allChecked) {
             const totalTime = Date.now() - cookingStartTime;
-            document.getElementById("process-total-time").innerText = `Total Cooking Time: ${(totalTime/1000).toFixed(1)} seconds.`;
+            document.getElementById("total-cook-time").innerText = `Total Cooking Time: ${(totalTime/1000).toFixed(1)} seconds.`;
           }
         }
       }
     });
 
-    // Kitchen share functionality: share BOM process text via WhatsApp and print.
-    document.getElementById("share-btn").addEventListener("click", function () {
-      const options = document.getElementById("share-options");
+    // Share functionality in Cook Food view: share process text via WhatsApp and print.
+    document.getElementById("cook-share-btn").addEventListener("click", function () {
+      const options = document.getElementById("cook-share-options");
       options.style.display = options.style.display === "none" ? "block" : "none";
     });
-    document.getElementById("share-whatsapp").addEventListener("click", function () {
-      // Share the cooking process steps and total time as text.
-      const steps = Array.from(document.querySelectorAll("#process-steps-list li")).map(li => li.innerText.trim()).join("\n");
-      const totalTime = document.getElementById("process-total-time").innerText;
+    document.getElementById("cook-share-whatsapp").addEventListener("click", function () {
+      // Gather process steps and total time.
+      const steps = Array.from(document.querySelectorAll("#process-steps-body tr")).map(tr => {
+        const checkbox = tr.querySelector("input.process-checkbox");
+        const stepText = tr.cells[1].innerText;
+        const stepTime = tr.cells[2].innerText;
+        return `${checkbox.checked ? "[x]" : "[ ]"} ${stepText} ${stepTime}`;
+      }).join("\n");
+      const totalTime = document.getElementById("total-cook-time").innerText;
       const shareText = `Cooking Process:\n${steps}\n${totalTime}`;
       const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(shareText);
       window.open(url, "_blank");
     });
-    document.getElementById("print-bom").addEventListener("click", function () {
+    document.getElementById("cook-print").addEventListener("click", function () {
       window.print();
+    });
+    // Back to Kitchen Main Menu from Cook Food view.
+    document.getElementById("back-to-kitchen-menu").addEventListener("click", function () {
+      // Reset Cook Food view and go back to navigation.
+      document.getElementById("process-display").style.display = "none";
+      document.getElementById("cook-form").reset();
+      document.getElementById("kitchen-calc-section").style.display = "block";
+      document.getElementById("kitchen-cook-section").style.display = "none";
+      document.getElementById("kitchen-itemlist-btn").classList.add("active");
+      document.getElementById("kitchen-cook-btn").classList.remove("active");
+      // Re-enable Start Cooking button for next use.
+      document.getElementById("start-cooking-btn").disabled = false;
     });
 
     /*********************
