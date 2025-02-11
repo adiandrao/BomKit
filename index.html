@@ -5,7 +5,7 @@
   <!-- Ensure proper scaling on mobile devices -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BOM Management System</title>
-  <!-- Include html2canvas from CDN for capturing DOM snapshots -->
+  <!-- html2canvas library for capturing snapshots -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRcdTCXce1J3DRXnPNskMsafpFYZQROfV/1z6EaWdd+20SfhJ5BjqNfB2ULmMy+jwEZiLJlg+jWkQ2kztC+g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
     /* ---------- Base & Reset ---------- */
@@ -139,6 +139,20 @@
     }
     .back-dashboard:hover { background: #5a6268; }
 
+    /* ---------- Styled Button for "Add New Food Item" ---------- */
+    .new-food-item-btn {
+      padding: 12px 20px;
+      background: #ffc107;
+      border: none;
+      border-radius: 4px;
+      color: #333;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.3s;
+    }
+    .new-food-item-btn:hover { background: #e0a800; }
+
     /* ---------- Container for CRUD Pages ---------- */
     .container {
       max-width: 900px;
@@ -237,6 +251,19 @@
     }
     #share-container button:hover { background: #138496; }
 
+    /* ---------- Download Snapshot Button Style ---------- */
+    .download-btn {
+      padding: 10px 15px;
+      background: #ffc107;
+      border: none;
+      border-radius: 4px;
+      color: #333;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 10px;
+    }
+    .download-btn:hover { background: #e0a800; }
+
     /* ---------- Responsive ---------- */
     @media (max-width: 600px) {
       .login-container { flex-direction: column; }
@@ -256,7 +283,6 @@
       <div class="login-form-container">
         <h1>Login</h1>
         <form id="login-form">
-          <!-- Login type is determined by username -->
           <input type="text" id="username" placeholder="Username" required />
           <input type="password" id="password" placeholder="Password" required />
           <button type="submit">Login</button>
@@ -314,7 +340,7 @@
             <!-- Populated dynamically -->
           </tbody>
         </table>
-        <button id="show-add-bom">Add New Food Item</button>
+        <button id="show-add-bom" class="new-food-item-btn">Add New Food Item</button>
         <button id="back-to-dashboard1" class="back-dashboard">Back to Dashboard</button>
       </div>
       <!-- Form View Container (for Add/Edit) -->
@@ -389,6 +415,10 @@
         <button id="share-whatsapp">Share via WhatsApp</button>
         <button id="print-bom">Print BOM</button>
       </div>
+    </div>
+    <!-- Download Snapshot Button for manual sharing -->
+    <div id="download-container" style="text-align: center; margin-top: 10px;">
+      <button id="download-snapshot" class="download-btn">Download Snapshot</button>
     </div>
   </div>
 
@@ -634,8 +664,9 @@
               <button type="button" class="remove-ingredient">Remove</button>
             `;
             container.appendChild(row);
+            // Use the modern remove() method for simplicity.
             row.querySelector(".remove-ingredient").addEventListener("click", function () {
-              container.removeChild(row);
+              row.remove();
             });
           });
           document.getElementById("items-list-view").style.display = "none";
@@ -730,7 +761,7 @@
       document.getElementById("share-container").style.display = "block";
       document.getElementById("share-options").style.display = "none";
     });
-    // Kitchen: Clear Cache button (similar to admin)
+    // Kitchen: Clear Cache button
     document.getElementById("clear-cache-kitchen").addEventListener("click", function () {
       if (confirm("This will clear all stored Food Item Masters. Continue?")) {
         localStorage.removeItem("bomMasters");
@@ -758,20 +789,53 @@
         if (bom) { prodQtyLabel.innerText = `Enter Production Quantity (in ${bom.baseUOM}):`; }
       } else { prodQtyLabel.innerText = "Enter Production Quantity:"; }
     });
-    // Share BOM as image via WhatsApp using html2canvas and Web Share API
+
+    // Option to download a snapshot of the BOM result as an image for manual sharing.
+    document.getElementById("download-snapshot").addEventListener("click", async function () {
+      const bomResult = document.getElementById("bom-result");
+      if (!bomResult) {
+        alert("No BOM result available to capture.");
+        return;
+      }
+      try {
+        const canvas = await html2canvas(bomResult, {
+          allowTaint: true,
+          useCORS: true
+        });
+        const dataUrl = canvas.toDataURL("image/png");
+        const downloadLink = document.createElement("a");
+        downloadLink.href = dataUrl;
+        downloadLink.download = "bom_snapshot.png";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      } catch (error) {
+        console.error("Error capturing BOM snapshot:", error);
+        alert("Could not capture BOM snapshot. Please check the console for details.");
+      }
+    });
+
+    // Share BOM using WhatsApp with image snapshot (alternative method)
     document.getElementById("share-btn").addEventListener("click", function () {
-      // Toggle share options visibility
       const options = document.getElementById("share-options");
       options.style.display = options.style.display === "none" ? "block" : "none";
     });
     document.getElementById("share-whatsapp").addEventListener("click", async function () {
-      // Capture the BOM result container as an image
       const bomResult = document.getElementById("bom-result");
-      if (!bomResult) { alert("No BOM to share."); return; }
+      if (!bomResult) {
+        alert("No BOM result available to capture.");
+        return;
+      }
       try {
-        const canvas = await html2canvas(bomResult);
+        const canvas = await html2canvas(bomResult, {
+          allowTaint: true,
+          useCORS: true
+        });
         canvas.toBlob(async function(blob) {
-          // Create a File from the blob (if Web Share API v2 is supported)
+          if (!blob) {
+            alert("Could not capture BOM snapshot as a blob.");
+            return;
+          }
           const file = new File([blob], "bom.png", { type: "image/png" });
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
             try {
@@ -781,18 +845,18 @@
                 files: [file],
               });
             } catch (err) {
-              console.error("Error sharing:", err);
-              alert("Sharing failed.");
+              console.error("Error sharing via Web Share API:", err);
+              alert("Sharing failed via Web Share API.");
             }
           } else {
-            // Fallback: open the image in a new tab
+            // Fallback: open image in new tab
             const url = URL.createObjectURL(blob);
             window.open(url, "_blank");
           }
         }, "image/png");
       } catch (error) {
-        console.error("Error capturing BOM:", error);
-        alert("Could not capture BOM snapshot.");
+        console.error("Error capturing BOM snapshot:", error);
+        alert("Could not capture BOM snapshot. Please check the console for details.");
       }
     });
     document.getElementById("print-bom").addEventListener("click", function () {
