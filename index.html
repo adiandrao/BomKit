@@ -265,7 +265,7 @@
 
   <!-- ---------- Admin Section ---------- -->
   <div class="container" id="admin-section">
-    <!-- Header with Clear Cache and Logout (no image) -->
+    <!-- Header with Clear Cache and Logout -->
     <header>
       <h1>Admin Dashboard</h1>
       <div class="header-actions">
@@ -571,6 +571,26 @@
         select.innerHTML = `<option value="">Select UOM</option>${uomOptions}`;
       });
     }
+    // Add Ingredient event listener
+    document.getElementById("add-ingredient").addEventListener("click", function () {
+      const container = document.getElementById("ingredients-container");
+      const uomOptions = getUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("");
+      const newRow = document.createElement("div");
+      newRow.className = "ingredient-row";
+      newRow.innerHTML = `
+          <input type="text" class="ingredient-name" placeholder="Ingredient Name" required />
+          <input type="number" class="ingredient-qty" placeholder="Quantity" required />
+          <select class="ingredient-unit" required>
+            <option value="">Select UOM</option>
+            ${uomOptions}
+          </select>
+          <button type="button" class="remove-ingredient">Remove</button>
+      `;
+      container.appendChild(newRow);
+      newRow.querySelector(".remove-ingredient").addEventListener("click", function () {
+        container.removeChild(newRow);
+      });
+    });
     document.getElementById("bom-master-form").addEventListener("submit", function (event) {
       event.preventDefault();
       const foodItemName = document.getElementById("foodItemName").value.trim();
@@ -632,7 +652,7 @@
             `;
             container.appendChild(row);
             row.querySelector(".remove-ingredient").addEventListener("click", function () {
-              row.remove();
+              container.removeChild(row);
             });
           });
           document.getElementById("items-list-view").style.display = "none";
