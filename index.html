@@ -385,7 +385,7 @@
         <button id="kitchen-logout-btn">Logout</button>
       </div>
     </header>
-    <h2>Pre Cook list Calculator</h2>
+    <h2>Pre-Cook list Calculator</h2>
     <form id="bom-calc-form">
       <label for="foodItemSelect">Select Food Item:</label>
       <select id="foodItemSelect" required>
@@ -736,7 +736,7 @@
       const bom = bomMasters[foodItemKey];
       if (!bom) { alert("Food Item Master not found."); return; }
       const factor = prodQty / bom.baseQty;
-      let resultHTML = `<h2>BOM for ${bom.foodItem} (${prodQty} ${bom.baseUOM})</h2>`;
+      let resultHTML = `<h2>Item list for ${bom.foodItem} (${prodQty} ${bom.baseUOM})</h2>`;
       resultHTML += `
         <table>
           <thead>
