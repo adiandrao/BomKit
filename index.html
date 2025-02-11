@@ -5,7 +5,7 @@
   <!-- Ensure proper scaling on mobile devices -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BOM Management System</title>
-  <!-- html2canvas library for capturing snapshots -->
+  <!-- Include html2canvas for previous snapshot code if needed (currently not used) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRcdTCXce1J3DRXnPNskMsafpFYZQROfV/1z6EaWdd+20SfhJ5BjqNfB2ULmMy+jwEZiLJlg+jWkQ2kztC+g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
     /* ---------- Base & Reset ---------- */
@@ -251,19 +251,6 @@
     }
     #share-container button:hover { background: #138496; }
 
-    /* ---------- Download Snapshot Button Style ---------- */
-    .download-btn {
-      padding: 10px 15px;
-      background: #ffc107;
-      border: none;
-      border-radius: 4px;
-      color: #333;
-      cursor: pointer;
-      font-size: 1rem;
-      margin-top: 10px;
-    }
-    .download-btn:hover { background: #e0a800; }
-
     /* ---------- Responsive ---------- */
     @media (max-width: 600px) {
       .login-container { flex-direction: column; }
@@ -415,10 +402,6 @@
         <button id="share-whatsapp">Share via WhatsApp</button>
         <button id="print-bom">Print BOM</button>
       </div>
-    </div>
-    <!-- Download Snapshot Button for manual sharing -->
-    <div id="download-container" style="text-align: center; margin-top: 10px;">
-      <button id="download-snapshot" class="download-btn">Download Snapshot</button>
     </div>
   </div>
 
@@ -604,6 +587,26 @@
         select.innerHTML = `<option value="">Select UOM</option>${uomOptions}`;
       });
     }
+    // Add Ingredient event listener (simplified and robust)
+    document.getElementById("add-ingredient").addEventListener("click", function () {
+      const container = document.getElementById("ingredients-container");
+      const uomOptions = getUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("");
+      const newRow = document.createElement("div");
+      newRow.classList.add("ingredient-row");
+      newRow.innerHTML = `
+        <input type="text" class="ingredient-name" placeholder="Ingredient Name" required />
+        <input type="number" class="ingredient-qty" placeholder="Quantity" required />
+        <select class="ingredient-unit" required>
+          <option value="">Select UOM</option>
+          ${uomOptions}
+        </select>
+        <button type="button" class="remove-ingredient">Remove</button>
+      `;
+      container.appendChild(newRow);
+      newRow.querySelector(".remove-ingredient").addEventListener("click", function () {
+        newRow.remove();
+      });
+    });
     document.getElementById("bom-master-form").addEventListener("submit", function (event) {
       event.preventDefault();
       const foodItemName = document.getElementById("foodItemName").value.trim();
@@ -653,7 +656,7 @@
           container.innerHTML = "<h3>Ingredients</h3>";
           bom.ingredients.forEach((ing) => {
             const row = document.createElement("div");
-            row.className = "ingredient-row";
+            row.classList.add("ingredient-row");
             row.innerHTML = `
               <input type="text" class="ingredient-name" placeholder="Ingredient Name" required value="${ing.name}" />
               <input type="number" class="ingredient-qty" placeholder="Quantity" required value="${ing.qty}" />
@@ -664,7 +667,6 @@
               <button type="button" class="remove-ingredient">Remove</button>
             `;
             container.appendChild(row);
-            // Use the modern remove() method for simplicity.
             row.querySelector(".remove-ingredient").addEventListener("click", function () {
               row.remove();
             });
@@ -761,13 +763,6 @@
       document.getElementById("share-container").style.display = "block";
       document.getElementById("share-options").style.display = "none";
     });
-    // Kitchen: Clear Cache button
-    document.getElementById("clear-cache-kitchen").addEventListener("click", function () {
-      if (confirm("This will clear all stored Food Item Masters. Continue?")) {
-        localStorage.removeItem("bomMasters");
-        location.reload();
-      }
-    });
     function populateFoodItems() {
       const bomMasters = getBOMMasters();
       const select = document.getElementById("foodItemSelect");
@@ -789,78 +784,24 @@
         if (bom) { prodQtyLabel.innerText = `Enter Production Quantity (in ${bom.baseUOM}):`; }
       } else { prodQtyLabel.innerText = "Enter Production Quantity:"; }
     });
-
-    // Option to download a snapshot of the BOM result as an image for manual sharing.
-    document.getElementById("download-snapshot").addEventListener("click", async function () {
-      const bomResult = document.getElementById("bom-result");
-      if (!bomResult) {
-        alert("No BOM result available to capture.");
-        return;
-      }
-      try {
-        const canvas = await html2canvas(bomResult, {
-          allowTaint: true,
-          useCORS: true
-        });
-        const dataUrl = canvas.toDataURL("image/png");
-        const downloadLink = document.createElement("a");
-        downloadLink.href = dataUrl;
-        downloadLink.download = "bom_snapshot.png";
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-      } catch (error) {
-        console.error("Error capturing BOM snapshot:", error);
-        alert("Could not capture BOM snapshot. Please check the console for details.");
-      }
-    });
-
-    // Share BOM using WhatsApp with image snapshot (alternative method)
+    // Original Share logic: Share BOM text via WhatsApp and Print BOM
     document.getElementById("share-btn").addEventListener("click", function () {
       const options = document.getElementById("share-options");
       options.style.display = options.style.display === "none" ? "block" : "none";
     });
-    document.getElementById("share-whatsapp").addEventListener("click", async function () {
-      const bomResult = document.getElementById("bom-result");
-      if (!bomResult) {
-        alert("No BOM result available to capture.");
-        return;
-      }
-      try {
-        const canvas = await html2canvas(bomResult, {
-          allowTaint: true,
-          useCORS: true
-        });
-        canvas.toBlob(async function(blob) {
-          if (!blob) {
-            alert("Could not capture BOM snapshot as a blob.");
-            return;
-          }
-          const file = new File([blob], "bom.png", { type: "image/png" });
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            try {
-              await navigator.share({
-                title: "BOM Snapshot",
-                text: "Here is the BOM snapshot:",
-                files: [file],
-              });
-            } catch (err) {
-              console.error("Error sharing via Web Share API:", err);
-              alert("Sharing failed via Web Share API.");
-            }
-          } else {
-            // Fallback: open image in new tab
-            const url = URL.createObjectURL(blob);
-            window.open(url, "_blank");
-          }
-        }, "image/png");
-      } catch (error) {
-        console.error("Error capturing BOM snapshot:", error);
-        alert("Could not capture BOM snapshot. Please check the console for details.");
-      }
+    document.getElementById("share-whatsapp").addEventListener("click", function () {
+      const bomText = document.getElementById("bom-result").innerText;
+      const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(bomText);
+      window.open(url, "_blank");
     });
     document.getElementById("print-bom").addEventListener("click", function () {
       window.print();
+    });
+    document.getElementById("clear-cache-kitchen").addEventListener("click", function () {
+      if (confirm("This will clear all stored Food Item Masters. Continue?")) {
+        localStorage.removeItem("bomMasters");
+        location.reload();
+      }
     });
     document.getElementById("kitchen-logout-btn").addEventListener("click", function () { location.reload(); });
   </script>
