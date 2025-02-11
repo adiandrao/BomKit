@@ -2,17 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <!-- Ensure proper scaling on mobile devices -->
+  <!-- Responsive meta tag -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kitchen Management System</title>
-  <!-- Include html2canvas for previous snapshot code if needed (currently not used) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRcdTCXce1J3DRXnPNskMsafpFYZQROfV/1z6EaWdd+20SfhJ5BjqNfB2ULmMy+jwEZiLJlg+jWkQ2kztC+g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <title>BOM Management System</title>
+  <!-- Include html2canvas if needed (currently not used in our share logic) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" 
+    integrity="sha512-BNaRcdTCXce1J3DRXnPNskMsafpFYZQROfV/1z6EaWdd+20SfhJ5BjqNfB2ULmMy+jwEZiLJlg+jWkQ2kztC+g==" 
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
     /* ---------- Base & Reset ---------- */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial, sans-serif; background: #f4f7f9; color: #333; padding: 20px; }
 
-    /* ---------- Header for Admin & Kitchen ---------- */
+    /* ---------- Header (for Admin and Kitchen) ---------- */
     header {
       display: flex;
       justify-content: space-between;
@@ -37,7 +39,7 @@
       font-size: 1rem;
     }
 
-    /* ---------- Login Page Styles ---------- */
+    /* ---------- Login Page ---------- */
     #login-section {
       display: flex;
       align-items: center;
@@ -88,7 +90,7 @@
     }
     .login-form-container button:hover { background: #0056b3; }
 
-    /* ---------- Dashboard & Navigation ---------- */
+    /* ---------- Dashboard & Navigation for Admin ---------- */
     .admin-dashboard {
       text-align: center;
       margin-bottom: 30px;
@@ -126,6 +128,26 @@
       font-size: 1rem;
     }
     .dashboard-links button:hover { background: #218838; }
+
+    /* ---------- Admin Additional Menu for Process Masters ---------- */
+    .admin-extra-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .admin-extra-links button {
+      padding: 10px 20px;
+      background: #17a2b8;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .admin-extra-links button:hover { background: #138496; }
+
+    /* ---------- Back Button ---------- */
     .back-dashboard {
       display: inline-block;
       margin: 20px auto;
@@ -152,6 +174,24 @@
       transition: background 0.3s;
     }
     .new-food-item-btn:hover { background: #e0a800; }
+
+    /* ---------- Kitchen Navigation ---------- */
+    .kitchen-nav {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .kitchen-nav button {
+      padding: 10px 20px;
+      background: #17a2b8;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1rem;
+      margin: 0 10px;
+    }
+    .kitchen-nav button.active { background: #138496; }
+    .kitchen-nav button:hover { background: #138496; }
 
     /* ---------- Container for CRUD Pages ---------- */
     .container {
@@ -259,6 +299,8 @@
       .back-dashboard { width: 100%; text-align: center; }
       .search-container { flex-direction: column; }
       .search-container input[type="text"] { margin-bottom: 10px; }
+      .kitchen-nav { flex-direction: column; }
+      .kitchen-nav button { margin-bottom: 10px; }
     }
   </style>
 </head>
@@ -299,10 +341,17 @@
           <h2>UOM Masters</h2>
           <p id="uom-count">0</p>
         </div>
+        <div class="dashboard-card">
+          <h2>Process Masters</h2>
+          <p id="process-count">0</p>
+        </div>
       </div>
       <div class="dashboard-links">
         <button id="link-items">Manage Items</button>
         <button id="link-uom">Manage UOM</button>
+      </div>
+      <div class="admin-extra-links">
+        <button id="link-process">Manage Process Masters</button>
       </div>
     </div>
 
@@ -373,6 +422,43 @@
       </form>
       <button id="back-to-dashboard2" class="back-dashboard">Back to Dashboard</button>
     </div>
+
+    <!-- Process Masters Management View -->
+    <div id="admin-process-section" style="display: none;">
+      <h2>Manage Process Masters</h2>
+      <table id="process-table">
+        <thead>
+          <tr>
+            <th>Food Item</th>
+            <th>Process Steps</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Process masters will be listed here -->
+        </tbody>
+      </table>
+      <button id="show-add-process" class="new-food-item-btn">Add New Process Master</button>
+      <button id="back-to-dashboard3" class="back-dashboard">Back to Dashboard</button>
+      <!-- Form View for Process Master -->
+      <div id="process-form-section" style="display: none;">
+        <h2 id="process-form-title">Add New Process Master</h2>
+        <form id="process-master-form">
+          <label for="processFoodItem">Food Item Name:</label>
+          <input type="text" id="processFoodItem" placeholder="e.g., Milkshake" required />
+          <div id="process-steps-container">
+            <h3>Process Steps</h3>
+            <div class="process-step-row">
+              <input type="text" class="process-step" placeholder="Step description" required />
+              <button type="button" class="remove-process-step">Remove</button>
+            </div>
+          </div>
+          <button type="button" id="add-process-step">Add Process Step</button>
+          <button type="submit">Save Process Master</button>
+          <button type="button" id="cancel-add-process" class="back-dashboard">Back to List</button>
+        </form>
+      </div>
+    </div>
   </div>
 
   <!-- ---------- Kitchen Manager Section ---------- -->
@@ -385,22 +471,61 @@
         <button id="kitchen-logout-btn">Logout</button>
       </div>
     </header>
-    <h2>Pre-Cook list Calculator</h2>
-    <form id="bom-calc-form">
-      <label for="foodItemSelect">Select Food Item:</label>
-      <select id="foodItemSelect" required>
-        <option value="">Select Food Item</option>
-      </select>
-      <label for="prodQty" id="prodQty-label">Enter Production Quantity:</label>
-      <input type="number" id="prodQty" placeholder="Enter Production Quantity" required />
-      <button type="submit">Generate Item List</button>
-    </form>
-    <div id="bom-result"></div>
-    <div id="share-container" style="display: none;">
-      <button id="share-btn">Share List</button>
-      <div id="share-options" style="display: none; margin-top: 10px;">
-        <button id="share-whatsapp">Share via WhatsApp</button>
-        <button id="print-bom">Print List</button>
+    <!-- Kitchen Navigation -->
+    <div class="kitchen-nav">
+      <button id="kitchen-itemlist-btn" class="active">Item List Calculator</button>
+      <button id="kitchen-cook-btn">Cook Item</button>
+    </div>
+    <!-- Item List Calculator View (existing BOM Calculator) -->
+    <div id="kitchen-calc-section">
+      <h2>BOM Calculator</h2>
+      <form id="bom-calc-form">
+        <label for="foodItemSelect">Select Food Item:</label>
+        <select id="foodItemSelect" required>
+          <option value="">Select Food Item</option>
+        </select>
+        <label for="prodQty" id="prodQty-label">Enter Production Quantity:</label>
+        <input type="number" id="prodQty" placeholder="Enter Production Quantity" required />
+        <button type="submit">Calculate BOM</button>
+      </form>
+      <div id="bom-result"></div>
+      <div id="share-container" style="display: none;">
+        <button id="share-btn">Share BOM</button>
+        <div id="share-options" style="display: none; margin-top: 10px;">
+          <button id="share-whatsapp">Share via WhatsApp</button>
+          <button id="print-bom">Print BOM</button>
+        </div>
+      </div>
+    </div>
+    <!-- Cook Item View -->
+    <div id="kitchen-cook-section" style="display: none;">
+      <h2>Cook Item</h2>
+      <!-- Form to plan cooking -->
+      <form id="cook-form">
+        <label for="cookFoodItem">Select Food Item:</label>
+        <select id="cookFoodItem" required>
+          <option value="">Select Food Item</option>
+        </select>
+        <label for="cookQty">Quantity to Cook:</label>
+        <input type="number" id="cookQty" placeholder="Enter quantity" required />
+        <button type="submit">Generate Cooking Process</button>
+      </form>
+      <!-- Process steps will be displayed here -->
+      <div id="process-display" style="display: none;">
+        <h3>Cooking Process</h3>
+        <ol id="process-steps-list">
+          <!-- Each step will be a list item with a checkbox and a span for time -->
+        </ol>
+        <button id="start-cooking-btn">Start Cooking</button>
+        <div id="cooking-timer" style="margin-top: 10px;"></div>
+        <div id="process-total-time" style="margin-top: 10px; font-weight: bold;"></div>
+        <div id="cook-share-container" style="margin-top: 10px;">
+          <button id="cook-share-btn">Share Process</button>
+          <div id="cook-share-options" style="display: none; margin-top: 10px;">
+            <button id="cook-share-whatsapp">Share via WhatsApp</button>
+            <button id="cook-print">Print Process</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -446,6 +571,33 @@
     };
     // Default UOM list
     const defaultUOMList = ["ml", "L", "g", "kg", "pcs"];
+    // Default Process Masters for sample food items.
+    const defaultProcessMasters = {
+      milkshake: {
+        processes: [
+          "Add Milk, Ice Cream, and Sugar to the blender",
+          "Blend until smooth",
+          "Pour into a glass and serve"
+        ]
+      },
+      burger: {
+        processes: [
+          "Toast the bun",
+          "Grill the patty",
+          "Assemble the burger with cheese and lettuce",
+          "Serve immediately"
+        ]
+      },
+      pasta: {
+        processes: [
+          "Boil pasta until al dente",
+          "Heat tomato sauce",
+          "Mix pasta with sauce",
+          "Top with Parmesan and basil",
+          "Serve warm"
+        ]
+      }
+    };
 
     function getBOMMasters() {
       const stored = localStorage.getItem("bomMasters");
@@ -459,6 +611,12 @@
       else { localStorage.setItem("uomList", JSON.stringify(defaultUOMList)); return defaultUOMList; }
     }
     function saveUOMList(uomList) { localStorage.setItem("uomList", JSON.stringify(uomList)); }
+    function getProcessMasters() {
+      const stored = localStorage.getItem("processMasters");
+      if (stored) { return JSON.parse(stored); }
+      else { localStorage.setItem("processMasters", JSON.stringify(defaultProcessMasters)); return defaultProcessMasters; }
+    }
+    function saveProcessMasters(processMasters) { localStorage.setItem("processMasters", JSON.stringify(processMasters)); }
 
     /*********************
      * Login Functionality
@@ -474,7 +632,9 @@
       } else if (username === "kitchen" && password === "kitchen123") {
         document.getElementById("login-section").style.display = "none";
         document.getElementById("kitchen-section").style.display = "block";
+        // Populate both BOM Calculator and Cook Item food item lists
         populateFoodItems();
+        populateCookFoodItems();
       } else { alert("Invalid credentials!"); }
     });
 
@@ -486,15 +646,17 @@
       document.getElementById("item-count").innerText = Object.keys(bomMasters).length;
       const uomList = getUOMList();
       document.getElementById("uom-count").innerText = uomList.length;
+      const processMasters = getProcessMasters();
+      document.getElementById("process-count").innerText = Object.keys(processMasters).length;
       // Show dashboard; hide other management views
       document.getElementById("admin-dashboard").style.display = "block";
       document.getElementById("admin-items-section").style.display = "none";
       document.getElementById("admin-uom-section").style.display = "none";
+      document.getElementById("admin-process-section").style.display = "none";
     }
     document.getElementById("link-items").addEventListener("click", function () {
       document.getElementById("admin-dashboard").style.display = "none";
       document.getElementById("admin-items-section").style.display = "block";
-      // Show list view and hide form view
       document.getElementById("items-list-view").style.display = "block";
       document.getElementById("bom-form-section").style.display = "none";
       renderItemMasterOptions();
@@ -504,6 +666,11 @@
       document.getElementById("admin-dashboard").style.display = "none";
       document.getElementById("admin-uom-section").style.display = "block";
       renderUOMList();
+    });
+    document.getElementById("link-process").addEventListener("click", function () {
+      document.getElementById("admin-dashboard").style.display = "none";
+      document.getElementById("admin-process-section").style.display = "block";
+      renderProcessMasters();
     });
     document.getElementById("clear-cache-dashboard").addEventListener("click", function () {
       if (confirm("This will clear all stored Food Item Masters. Continue?")) {
@@ -515,6 +682,7 @@
     // Back buttons for admin management
     document.getElementById("back-to-dashboard1").addEventListener("click", showDashboard);
     document.getElementById("back-to-dashboard2").addEventListener("click", showDashboard);
+    document.getElementById("back-to-dashboard3").addEventListener("click", showDashboard);
 
     /*********************
      * Admin: Food Item Masters (CRUD) Management
@@ -587,26 +755,6 @@
         select.innerHTML = `<option value="">Select UOM</option>${uomOptions}`;
       });
     }
-    // Add Ingredient event listener (simplified and robust)
-    document.getElementById("add-ingredient").addEventListener("click", function () {
-      const container = document.getElementById("ingredients-container");
-      const uomOptions = getUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("");
-      const newRow = document.createElement("div");
-      newRow.classList.add("ingredient-row");
-      newRow.innerHTML = `
-        <input type="text" class="ingredient-name" placeholder="Ingredient Name" required />
-        <input type="number" class="ingredient-qty" placeholder="Quantity" required />
-        <select class="ingredient-unit" required>
-          <option value="">Select UOM</option>
-          ${uomOptions}
-        </select>
-        <button type="button" class="remove-ingredient">Remove</button>
-      `;
-      container.appendChild(newRow);
-      newRow.querySelector(".remove-ingredient").addEventListener("click", function () {
-        newRow.remove();
-      });
-    });
     document.getElementById("bom-master-form").addEventListener("submit", function (event) {
       event.preventDefault();
       const foodItemName = document.getElementById("foodItemName").value.trim();
@@ -686,46 +834,154 @@
     });
 
     /*********************
-     * Admin: UOM Management (CRUD)
+     * Admin: Process Masters (CRUD) Management
      *********************/
-    function renderUOMList() {
-      const uomList = getUOMList();
-      const uomListContainer = document.getElementById("uom-list");
-      uomListContainer.innerHTML = "";
-      uomList.forEach((uom, index) => {
-        const li = document.createElement("li");
-        li.style.marginBottom = "10px";
-        li.textContent = uom + " ";
-        const delBtn = document.createElement("button");
-        delBtn.textContent = "Delete";
-        delBtn.className = "clear-btn";
-        delBtn.style.padding = "5px 10px";
-        delBtn.addEventListener("click", function () {
-          if (confirm(`Delete UOM "${uom}"?`)) {
-            const updated = uomList.filter((_, i) => i !== index);
-            saveUOMList(updated);
-            renderUOMList();
-          }
-        });
-        li.appendChild(delBtn);
-        uomListContainer.appendChild(li);
-      });
+    let currentProcessKey = null;
+    function renderProcessMasters() {
+      const processMasters = getProcessMasters();
+      const tbody = document.querySelector("#process-table tbody");
+      tbody.innerHTML = "";
+      for (const key in processMasters) {
+        if (processMasters.hasOwnProperty(key)) {
+          const proc = processMasters[key];
+          const stepsText = proc.processes.join("<br>");
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${key}</td>
+            <td>${stepsText}</td>
+            <td>
+              <button class="action-btn edit-btn" data-key="${key}">Edit</button>
+              <button class="action-btn delete-btn" data-key="${key}">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        }
+      }
     }
-    document.getElementById("uom-form").addEventListener("submit", function (event) {
+    document.getElementById("show-add-process").addEventListener("click", function () {
+      currentProcessKey = null;
+      document.getElementById("process-form-title").innerText = "Add New Process Master";
+      document.getElementById("admin-process-section").style.display = "none";
+      document.getElementById("process-form-section").style.display = "block";
+      document.getElementById("process-master-form").reset();
+      resetProcessSteps();
+    });
+    document.getElementById("cancel-add-process").addEventListener("click", function () {
+      document.getElementById("process-master-form").reset();
+      resetProcessSteps();
+      document.getElementById("process-form-section").style.display = "none";
+      document.getElementById("admin-process-section").style.display = "block";
+      currentProcessKey = null;
+    });
+    function resetProcessSteps() {
+      document.getElementById("process-steps-container").innerHTML = `
+        <h3>Process Steps</h3>
+        <div class="process-step-row">
+          <input type="text" class="process-step" placeholder="Step description" required />
+          <button type="button" class="remove-process-step">Remove</button>
+        </div>
+      `;
+    }
+    // Use event delegation for removing process steps in the process steps container
+    document.getElementById("process-steps-container").addEventListener("click", function(e) {
+      if (e.target && e.target.classList.contains("remove-process-step")) {
+        const row = e.target.closest(".process-step-row");
+        if (row) { row.remove(); }
+      }
+    });
+    document.getElementById("add-process-step").addEventListener("click", function () {
+      const container = document.getElementById("process-steps-container");
+      const newRow = document.createElement("div");
+      newRow.classList.add("process-step-row");
+      newRow.innerHTML = `
+        <input type="text" class="process-step" placeholder="Step description" required />
+        <button type="button" class="remove-process-step">Remove</button>
+      `;
+      container.appendChild(newRow);
+    });
+    document.getElementById("process-master-form").addEventListener("submit", function (event) {
       event.preventDefault();
-      const newUOM = document.getElementById("new-uom").value.trim();
-      if (!newUOM) { alert("Enter a valid UOM."); return; }
-      const uomList = getUOMList();
-      if (uomList.includes(newUOM)) { alert("UOM already exists!"); return; }
-      uomList.push(newUOM);
-      saveUOMList(uomList);
-      document.getElementById("new-uom").value = "";
-      renderUOMList();
+      const foodItem = document.getElementById("processFoodItem").value.trim().toLowerCase();
+      if (!foodItem) {
+        alert("Please enter a valid Food Item name.");
+        return;
+      }
+      const stepInputs = document.querySelectorAll(".process-step");
+      let steps = [];
+      stepInputs.forEach(input => {
+        const text = input.value.trim();
+        if (text) { steps.push(text); }
+      });
+      if (steps.length === 0) {
+        alert("Please enter at least one process step.");
+        return;
+      }
+      let processMasters = getProcessMasters();
+      processMasters[foodItem] = { processes: steps };
+      saveProcessMasters(processMasters);
+      alert("Process Master saved successfully!");
+      document.getElementById("process-master-form").reset();
+      resetProcessSteps();
+      document.getElementById("process-form-section").style.display = "none";
+      document.getElementById("admin-process-section").style.display = "block";
+      renderProcessMasters();
+      currentProcessKey = null;
+    });
+    // Process Masters table event delegation
+    document.querySelector("#process-table tbody").addEventListener("click", function (event) {
+      const target = event.target;
+      if (target.classList.contains("edit-btn")) {
+        const key = target.getAttribute("data-key");
+        const processMasters = getProcessMasters();
+        const proc = processMasters[key];
+        if (proc) {
+          currentProcessKey = key;
+          document.getElementById("process-form-title").innerText = "Edit Process Master";
+          document.getElementById("processFoodItem").value = key;
+          const container = document.getElementById("process-steps-container");
+          container.innerHTML = "<h3>Process Steps</h3>";
+          proc.processes.forEach(step => {
+            const row = document.createElement("div");
+            row.classList.add("process-step-row");
+            row.innerHTML = `
+              <input type="text" class="process-step" placeholder="Step description" required value="${step}" />
+              <button type="button" class="remove-process-step">Remove</button>
+            `;
+            container.appendChild(row);
+          });
+          document.getElementById("admin-process-section").style.display = "none";
+          document.getElementById("process-form-section").style.display = "block";
+        }
+      } else if (target.classList.contains("delete-btn")) {
+        const key = target.getAttribute("data-key");
+        if (confirm("Are you sure you want to delete this Process Master?")) {
+          let processMasters = getProcessMasters();
+          delete processMasters[key];
+          saveProcessMasters(processMasters);
+          renderProcessMasters();
+        }
+      }
     });
 
     /*********************
-     * Kitchen Manager: BOM Calculation & Share Options
+     * Kitchen Manager: BOM Calculator & Cook Item
      *********************/
+    // Kitchen navigation for switching between views
+    document.getElementById("kitchen-itemlist-btn").addEventListener("click", function () {
+      this.classList.add("active");
+      document.getElementById("kitchen-cook-btn").classList.remove("active");
+      document.getElementById("kitchen-calc-section").style.display = "block";
+      document.getElementById("kitchen-cook-section").style.display = "none";
+    });
+    document.getElementById("kitchen-cook-btn").addEventListener("click", function () {
+      this.classList.add("active");
+      document.getElementById("kitchen-itemlist-btn").classList.remove("active");
+      document.getElementById("kitchen-calc-section").style.display = "none";
+      document.getElementById("kitchen-cook-section").style.display = "block";
+      populateCookFoodItems();
+    });
+
+    // BOM Calculator (existing) in kitchen
     document.getElementById("bom-calc-form").addEventListener("submit", function (event) {
       event.preventDefault();
       const foodItemKey = document.getElementById("foodItemSelect").value;
@@ -736,7 +992,7 @@
       const bom = bomMasters[foodItemKey];
       if (!bom) { alert("Food Item Master not found."); return; }
       const factor = prodQty / bom.baseQty;
-      let resultHTML = `<h2>Item list for ${bom.foodItem} (${prodQty} ${bom.baseUOM})</h2>`;
+      let resultHTML = `<h2>BOM for ${bom.foodItem} (${prodQty} ${bom.baseUOM})</h2>`;
       resultHTML += `
         <table>
           <thead>
@@ -776,6 +1032,20 @@
         }
       }
     }
+    // For the Cook Item view, use a separate dropdown.
+    function populateCookFoodItems() {
+      const bomMasters = getBOMMasters();
+      const select = document.getElementById("cookFoodItem");
+      select.innerHTML = `<option value="">Select Food Item</option>`;
+      for (const key in bomMasters) {
+        if (bomMasters.hasOwnProperty(key)) {
+          const option = document.createElement("option");
+          option.value = key;
+          option.textContent = bomMasters[key].foodItem;
+          select.appendChild(option);
+        }
+      }
+    }
     document.getElementById("foodItemSelect").addEventListener("change", function () {
       const selectedKey = this.value;
       const prodQtyLabel = document.getElementById("prodQty-label");
@@ -784,19 +1054,96 @@
         if (bom) { prodQtyLabel.innerText = `Enter Production Quantity (in ${bom.baseUOM}):`; }
       } else { prodQtyLabel.innerText = "Enter Production Quantity:"; }
     });
-    // Original Share logic: Share BOM text via WhatsApp and Print BOM
+
+    /*********************
+     * Kitchen: Cook Item Functionality
+     *********************/
+    let cookingStartTime = 0;
+    let lastStepTime = 0;
+    let processStepTimes = []; // Array to hold time taken for each step
+
+    // When cook form is submitted, generate process steps from process masters.
+    document.getElementById("cook-form").addEventListener("submit", function (event) {
+      event.preventDefault();
+      const foodItemKey = document.getElementById("cookFoodItem").value;
+      const cookQty = parseFloat(document.getElementById("cookQty").value);
+      if (!foodItemKey) { alert("Please select a food item."); return; }
+      if (isNaN(cookQty) || cookQty <= 0) { alert("Please enter a valid quantity."); return; }
+      const processMasters = getProcessMasters();
+      const proc = processMasters[foodItemKey];
+      if (!proc) {
+        alert("No process defined for this food item.");
+        return;
+      }
+      // Generate the process steps list.
+      const stepsList = document.getElementById("process-steps-list");
+      stepsList.innerHTML = "";
+      proc.processes.forEach((step, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `<input type="checkbox" class="process-checkbox" data-index="${index}" /> ${step} 
+                        <span class="step-time" style="margin-left:10px; color:#007BFF;"></span>`;
+        stepsList.appendChild(li);
+      });
+      // Reset timer info.
+      cookingStartTime = 0;
+      lastStepTime = 0;
+      processStepTimes = [];
+      document.getElementById("cooking-timer").innerText = "";
+      document.getElementById("process-total-time").innerText = "";
+      document.getElementById("process-display").style.display = "block";
+    });
+
+    // When "Start Cooking" is clicked, start the timer.
+    document.getElementById("start-cooking-btn").addEventListener("click", function () {
+      cookingStartTime = Date.now();
+      lastStepTime = cookingStartTime;
+      // Disable the start button so timer is not restarted.
+      this.disabled = true;
+      alert("Cooking started. Please check off each step as you complete it.");
+    });
+
+    // Event delegation for checkboxes in the process steps list.
+    document.getElementById("process-steps-list").addEventListener("change", function (e) {
+      if (e.target && e.target.classList.contains("process-checkbox")) {
+        // Only record time if the checkbox is being checked.
+        if (e.target.checked) {
+          const currentTime = Date.now();
+          const stepTime = currentTime - lastStepTime;
+          lastStepTime = currentTime;
+          processStepTimes.push(stepTime);
+          // Display time for this step in seconds.
+          e.target.parentElement.querySelector(".step-time").innerText = `(${(stepTime/1000).toFixed(1)} sec)`;
+          // If all checkboxes are checked, calculate total time.
+          const checkboxes = document.querySelectorAll(".process-checkbox");
+          const allChecked = Array.from(checkboxes).every(chk => chk.checked);
+          if (allChecked) {
+            const totalTime = Date.now() - cookingStartTime;
+            document.getElementById("process-total-time").innerText = `Total Cooking Time: ${(totalTime/1000).toFixed(1)} seconds.`;
+          }
+        }
+      }
+    });
+
+    // Kitchen share functionality: share BOM process text via WhatsApp and print.
     document.getElementById("share-btn").addEventListener("click", function () {
       const options = document.getElementById("share-options");
       options.style.display = options.style.display === "none" ? "block" : "none";
     });
     document.getElementById("share-whatsapp").addEventListener("click", function () {
-      const bomText = document.getElementById("bom-result").innerText;
-      const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(bomText);
+      // Share the cooking process steps and total time as text.
+      const steps = Array.from(document.querySelectorAll("#process-steps-list li")).map(li => li.innerText.trim()).join("\n");
+      const totalTime = document.getElementById("process-total-time").innerText;
+      const shareText = `Cooking Process:\n${steps}\n${totalTime}`;
+      const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(shareText);
       window.open(url, "_blank");
     });
     document.getElementById("print-bom").addEventListener("click", function () {
       window.print();
     });
+
+    /*********************
+     * Kitchen: Clear Cache & Logout
+     *********************/
     document.getElementById("clear-cache-kitchen").addEventListener("click", function () {
       if (confirm("This will clear all stored Food Item Masters. Continue?")) {
         localStorage.removeItem("bomMasters");
