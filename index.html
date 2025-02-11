@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <!-- Ensures proper scaling on mobile devices -->
+  <!-- Ensure proper scaling on mobile devices -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BOM Management System</title>
   <style>
-    /* ---------- Base & Reset ---------- */
+    /* ---------- Base Styles & Reset ---------- */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial, sans-serif; background: #f4f7f9; color: #333; padding: 20px; }
 
@@ -29,6 +29,7 @@
     }
     .login-image {
       flex: 1;
+      /* Replace the URL below with your direct image URL */
       background: url('kukoo.jpg') no-repeat center center;
       background-size: cover;
       min-height: 300px;
@@ -61,7 +62,43 @@
     }
     .login-form-container button:hover { background: #0056b3; }
 
-    /* ---------- Dashboard and Page Containers ---------- */
+    /* ---------- Admin Dashboard Styles ---------- */
+    .admin-dashboard {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .dashboard-cards {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
+    }
+    .dashboard-card {
+      background: #007BFF;
+      color: #fff;
+      padding: 20px;
+      width: 40%;
+      border-radius: 8px;
+    }
+    .dashboard-card h2 { margin-bottom: 10px; }
+    .dashboard-card p { font-size: 1.5rem; }
+
+    .dashboard-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .dashboard-links button {
+      padding: 10px 20px;
+      background: #28a745;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+    }
+    .dashboard-links button:hover { background: #218838; }
+
+    /* ---------- Container for Admin, Kitchen, etc. ---------- */
     .container {
       max-width: 900px;
       background: #fff;
@@ -73,25 +110,7 @@
     }
     h1, h2, h3 { text-align: center; margin-bottom: 20px; }
 
-    /* ---------- Navigation Bar for Admin ---------- */
-    .admin-nav {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-    .admin-nav button {
-      padding: 10px 15px;
-      background: #007BFF;
-      border: none;
-      border-radius: 4px;
-      color: #fff;
-      cursor: pointer;
-    }
-    .admin-nav button.active { background: #0056b3; }
-    .admin-nav button:hover { background: #0056b3; }
-
-    /* ---------- Form & Table Styles (Reuse from previous code) ---------- */
+    /* ---------- Table & Form Styles (common) ---------- */
     form { margin-bottom: 20px; }
     form input[type="text"],
     form input[type="password"],
@@ -161,10 +180,28 @@
       margin-right: 10px;
     }
 
+    /* ---------- Kitchen Section Styles ---------- */
+    #share-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+    #share-container button {
+      margin: 5px;
+      padding: 10px 15px;
+      background: #17a2b8;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+    }
+    #share-container button:hover { background: #138496; }
+
     /* ---------- Responsive ---------- */
     @media (max-width: 600px) {
       .login-container { flex-direction: column; }
       .login-image { height: 200px; }
+      .dashboard-cards { flex-direction: column; }
+      .dashboard-card { width: 80%; margin: 0 auto 20px; }
       .search-container { flex-direction: column; }
       .search-container input[type="text"] { margin-bottom: 10px; margin-right: 0; }
     }
@@ -175,12 +212,12 @@
   <div id="login-section">
     <div class="login-container">
       <div class="login-image">
-        <!-- Replace IMAGE_URL below with your actual image URL -->
+        <!-- Replace with your image URL -->
       </div>
       <div class="login-form-container">
         <h1>Login</h1>
         <form id="login-form">
-          <!-- Removed the user-type dropdown -->
+          <!-- Removed user-type selection; login type is determined by username -->
           <input type="text" id="username" placeholder="Username" required />
           <input type="password" id="password" placeholder="Password" required />
           <button type="submit">Login</button>
@@ -189,19 +226,32 @@
     </div>
   </div>
 
-  <!-- ---------- Admin Dashboard ---------- -->
+  <!-- ---------- Admin Section (Dashboard + Masters) ---------- -->
   <div class="container" id="admin-section">
-    <h1>Admin Dashboard</h1>
-    <!-- Navigation Menu -->
-    <div class="admin-nav">
-      <button id="nav-items" class="active">Items</button>
-      <button id="nav-uom">UOM</button>
-      <button id="admin-logout">Logout</button>
+    <!-- Dashboard View -->
+    <div id="admin-dashboard">
+      <h1>Admin Dashboard</h1>
+      <div class="dashboard-cards">
+        <div class="dashboard-card">
+          <h2>Item Masters</h2>
+          <p id="item-count">0</p>
+        </div>
+        <div class="dashboard-card">
+          <h2>UOM Masters</h2>
+          <p id="uom-count">0</p>
+        </div>
+      </div>
+      <div class="dashboard-links">
+        <button id="link-items">Manage Items</button>
+        <button id="link-uom">Manage UOM</button>
+      </div>
     </div>
-    <!-- Items Management (BOM Masters) -->
-    <div id="admin-items-section">
+
+    <!-- Items Management View -->
+    <div id="admin-items-section" style="display: none;">
+      <h1>Manage Food Item Masters</h1>
       <div class="search-container">
-        <input type="text" id="search-box" placeholder="Search BOMs by food item..." />
+        <input type="text" id="search-box" placeholder="Search Food Items..." />
         <button id="clear-storage" class="clear-btn">Clear Cache</button>
       </div>
       <table id="bom-list-table">
@@ -214,31 +264,23 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Dynamically populated -->
+          <!-- Populated dynamically -->
         </tbody>
       </table>
-      <button id="show-add-bom">Add New BOM</button>
-      <!-- BOM Form (for Add / Edit) -->
+      <button id="show-add-bom">Add New Food Item</button>
+      <!-- Form for adding/editing items -->
       <div id="bom-form-section" style="display: none;">
-        <h2 id="form-title">Add New BOM Master</h2>
+        <h2 id="form-title">Add New Food Item Master</h2>
         <form id="bom-master-form">
           <label for="foodItemName">Food Item Name:</label>
           <input type="text" id="foodItemName" placeholder="e.g., Milkshake" required />
-
           <label for="baseQty">Base Production Quantity:</label>
           <input type="number" id="baseQty" placeholder="e.g., 100" required />
-
           <label for="baseUOM">Base UOM:</label>
           <select id="baseUOM" required>
             <option value="">Select UOM</option>
-            <!-- UOM options will come from the UOM list (default ones below) -->
-            <option value="ml">ml</option>
-            <option value="L">L</option>
-            <option value="g">g</option>
-            <option value="kg">kg</option>
-            <option value="pcs">pcs</option>
+            <!-- UOM options come from UOM list -->
           </select>
-
           <div id="ingredients-container">
             <h3>Ingredients</h3>
             <div class="ingredient-row">
@@ -246,31 +288,31 @@
               <input type="number" class="ingredient-qty" placeholder="Quantity" required />
               <select class="ingredient-unit" required>
                 <option value="">Select UOM</option>
-                <option value="ml">ml</option>
-                <option value="L">L</option>
-                <option value="g">g</option>
-                <option value="kg">kg</option>
-                <option value="pcs">pcs</option>
+                <!-- UOM options come from UOM list -->
               </select>
             </div>
           </div>
           <button type="button" id="add-ingredient">Add Ingredient</button>
-          <button type="submit">Save BOM Master</button>
+          <button type="submit">Save Food Item Master</button>
           <button type="button" id="cancel-add-bom">Cancel</button>
         </form>
       </div>
+      <button id="back-to-dashboard1">Back to Dashboard</button>
     </div>
-    <!-- UOM Management Section -->
+
+    <!-- UOM Management View -->
     <div id="admin-uom-section" style="display: none;">
-      <h2>UOM Management</h2>
+      <h1>Manage UOM Masters</h1>
       <ul id="uom-list">
-        <!-- Dynamically populated UOM list -->
+        <!-- UOM items will be listed here -->
       </ul>
       <form id="uom-form">
         <input type="text" id="new-uom" placeholder="Add new UOM (e.g., oz)" required />
         <button type="submit">Add UOM</button>
       </form>
+      <button id="back-to-dashboard2">Back to Dashboard</button>
     </div>
+    <button id="admin-logout">Logout</button>
   </div>
 
   <!-- ---------- Kitchen Manager Section ---------- -->
@@ -286,12 +328,10 @@
       <button type="submit">Calculate BOM</button>
     </form>
     <div id="bom-result"></div>
-    <!-- Share Button (appears after BOM calculation) -->
-    <div id="share-container" style="display:none; text-align: center; margin-top: 20px;">
+    <div id="share-container" style="display: none;">
       <button id="share-btn">Share BOM</button>
-      <!-- Hidden share options -->
-      <div id="share-options" style="display:none; margin-top: 10px;">
-        <button id="share-whatsapp" style="margin-right:10px;">Share via WhatsApp</button>
+      <div id="share-options" style="display: none; margin-top: 10px;">
+        <button id="share-whatsapp">Share via WhatsApp</button>
         <button id="print-bom">Print BOM</button>
       </div>
     </div>
@@ -302,7 +342,7 @@
     /*********************
      * Data Storage Setup
      *********************/
-    // Default BOM masters with three examples: Milkshake, Burger, and Pasta.
+    // Default Food Item masters (BOMs) with three examples.
     const defaultBOMMaster = {
       milkshake: {
         foodItem: "Milkshake",
@@ -337,34 +377,21 @@
         ]
       }
     };
-
     // Default UOM list
     const defaultUOMList = ["ml", "L", "g", "kg", "pcs"];
 
     function getBOMMasters() {
       const stored = localStorage.getItem("bomMasters");
-      if (stored) {
-        return JSON.parse(stored);
-      } else {
-        localStorage.setItem("bomMasters", JSON.stringify(defaultBOMMaster));
-        return defaultBOMMaster;
-      }
+      if (stored) { return JSON.parse(stored); }
+      else { localStorage.setItem("bomMasters", JSON.stringify(defaultBOMMaster)); return defaultBOMMaster; }
     }
-    function saveBOMMasters(bomMasters) {
-      localStorage.setItem("bomMasters", JSON.stringify(bomMasters));
-    }
+    function saveBOMMasters(bomMasters) { localStorage.setItem("bomMasters", JSON.stringify(bomMasters)); }
     function getUOMList() {
       const stored = localStorage.getItem("uomList");
-      if (stored) {
-        return JSON.parse(stored);
-      } else {
-        localStorage.setItem("uomList", JSON.stringify(defaultUOMList));
-        return defaultUOMList;
-      }
+      if (stored) { return JSON.parse(stored); }
+      else { localStorage.setItem("uomList", JSON.stringify(defaultUOMList)); return defaultUOMList; }
     }
-    function saveUOMList(uomList) {
-      localStorage.setItem("uomList", JSON.stringify(uomList));
-    }
+    function saveUOMList(uomList) { localStorage.setItem("uomList", JSON.stringify(uomList)); }
 
     /*********************
      * Login Functionality
@@ -373,45 +400,52 @@
       event.preventDefault();
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
-      // Use username to decide which dashboard to show.
       if (username === "admin" && password === "admin123") {
         document.getElementById("login-section").style.display = "none";
         document.getElementById("admin-section").style.display = "block";
-        refreshBOMList();
-        renderUOMList();
+        showDashboard();
       } else if (username === "kitchen" && password === "kitchen123") {
         document.getElementById("login-section").style.display = "none";
         document.getElementById("kitchen-section").style.display = "block";
         populateFoodItems();
-      } else {
-        alert("Invalid credentials!");
-      }
+      } else { alert("Invalid credentials!"); }
     });
 
     /*********************
-     * Admin: Navigation
+     * Admin Dashboard & Navigation
      *********************/
-    document.getElementById("nav-items").addEventListener("click", function () {
-      document.getElementById("nav-items").classList.add("active");
-      document.getElementById("nav-uom").classList.remove("active");
-      document.getElementById("admin-items-section").style.display = "block";
-      document.getElementById("admin-uom-section").style.display = "none";
-    });
-    document.getElementById("nav-uom").addEventListener("click", function () {
-      document.getElementById("nav-uom").classList.add("active");
-      document.getElementById("nav-items").classList.remove("active");
-      document.getElementById("admin-uom-section").style.display = "block";
+    function showDashboard() {
+      // Update counts
+      const bomMasters = getBOMMasters();
+      const itemCount = Object.keys(bomMasters).length;
+      document.getElementById("item-count").innerText = itemCount;
+      const uomList = getUOMList();
+      document.getElementById("uom-count").innerText = uomList.length;
+      // Show dashboard and hide management sections
+      document.getElementById("admin-dashboard").style.display = "block";
       document.getElementById("admin-items-section").style.display = "none";
+      document.getElementById("admin-uom-section").style.display = "none";
+    }
+    document.getElementById("link-items").addEventListener("click", function () {
+      document.getElementById("admin-dashboard").style.display = "none";
+      document.getElementById("admin-items-section").style.display = "block";
+      renderItemMasterOptions(); // fill UOM dropdowns in form
+      refreshBOMList();
+    });
+    document.getElementById("link-uom").addEventListener("click", function () {
+      document.getElementById("admin-dashboard").style.display = "none";
+      document.getElementById("admin-uom-section").style.display = "block";
       renderUOMList();
     });
-    document.getElementById("admin-logout").addEventListener("click", function () {
-      location.reload();
-    });
+    // Back buttons to dashboard
+    document.getElementById("back-to-dashboard1").addEventListener("click", showDashboard);
+    document.getElementById("back-to-dashboard2").addEventListener("click", showDashboard);
+    document.getElementById("admin-logout").addEventListener("click", function () { location.reload(); });
 
     /*********************
-     * Admin: Items (BOM Masters) Management
+     * Admin: Food Item Masters (CRUD) Management
      *********************/
-    let currentEditKey = null; // to keep track if editing an existing BOM
+    let currentEditKey = null;
     function refreshBOMList() {
       const bomMasters = getBOMMasters();
       const tableBody = document.querySelector("#bom-list-table tbody");
@@ -433,7 +467,6 @@
         }
       }
     }
-    // Search filter for BOM list.
     document.getElementById("search-box").addEventListener("input", function () {
       const query = this.value.trim().toLowerCase();
       const rows = document.querySelectorAll("#bom-list-table tbody tr");
@@ -442,16 +475,14 @@
         row.style.display = foodItem.indexOf(query) !== -1 ? "" : "none";
       });
     });
-    // Show BOM form for adding a new BOM.
     document.getElementById("show-add-bom").addEventListener("click", function () {
       currentEditKey = null;
-      document.getElementById("form-title").textContent = "Add New BOM Master";
+      document.getElementById("form-title").innerText = "Add New Food Item Master";
       document.getElementById("bom-list-section").style.display = "none";
       document.getElementById("bom-form-section").style.display = "block";
       document.getElementById("bom-master-form").reset();
       resetIngredients();
     });
-    // Cancel BOM form.
     document.getElementById("cancel-add-bom").addEventListener("click", function () {
       document.getElementById("bom-master-form").reset();
       resetIngredients();
@@ -459,8 +490,8 @@
       document.getElementById("bom-list-section").style.display = "block";
       currentEditKey = null;
     });
-    // Reset ingredients container to one default row.
     function resetIngredients() {
+      const uomOptions = getUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("");
       document.getElementById("ingredients-container").innerHTML = `
         <h3>Ingredients</h3>
         <div class="ingredient-row">
@@ -468,19 +499,28 @@
           <input type="number" class="ingredient-qty" placeholder="Quantity" required />
           <select class="ingredient-unit" required>
             <option value="">Select UOM</option>
-            ${getUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("")}
+            ${uomOptions}
           </select>
         </div>
       `;
     }
-    // Handle BOM form submission (for add or edit)
+    function renderItemMasterOptions() {
+      // Populate the base UOM dropdown in the form using the UOM list.
+      const uomOptions = getUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("");
+      document.getElementById("baseUOM").innerHTML = `<option value="">Select UOM</option>${uomOptions}`;
+      // Also update the ingredient UOM dropdown options.
+      const selects = document.querySelectorAll(".ingredient-unit");
+      selects.forEach(select => {
+        select.innerHTML = `<option value="">Select UOM</option>${uomOptions}`;
+      });
+    }
     document.getElementById("bom-master-form").addEventListener("submit", function (event) {
       event.preventDefault();
       const foodItemName = document.getElementById("foodItemName").value.trim();
       const baseQty = parseFloat(document.getElementById("baseQty").value);
       const baseUOM = document.getElementById("baseUOM").value;
       if (!foodItemName || isNaN(baseQty) || baseQty <= 0 || !baseUOM) {
-        alert("Please enter valid food item name, base quantity, and select a base UOM.");
+        alert("Please enter valid Food Item name, base quantity, and select a base UOM.");
         return;
       }
       const ingredientRows = document.querySelectorAll(".ingredient-row");
@@ -499,7 +539,7 @@
       const key = (currentEditKey) ? currentEditKey : foodItemName.toLowerCase();
       bomMasters[key] = { foodItem: foodItemName, baseQty: baseQty, baseUOM: baseUOM, ingredients: ingredients };
       saveBOMMasters(bomMasters);
-      alert("BOM Master saved successfully!");
+      alert("Food Item Master saved successfully!");
       document.getElementById("bom-master-form").reset();
       resetIngredients();
       document.getElementById("bom-form-section").style.display = "none";
@@ -507,26 +547,6 @@
       refreshBOMList();
       currentEditKey = null;
     });
-    // Add new ingredient row.
-    document.getElementById("add-ingredient").addEventListener("click", function () {
-      const container = document.getElementById("ingredients-container");
-      const newRow = document.createElement("div");
-      newRow.className = "ingredient-row";
-      newRow.innerHTML = `
-        <input type="text" class="ingredient-name" placeholder="Ingredient Name" required />
-        <input type="number" class="ingredient-qty" placeholder="Quantity" required />
-        <select class="ingredient-unit" required>
-          <option value="">Select UOM</option>
-          ${getUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("")}
-        </select>
-        <button type="button" class="remove-ingredient">Remove</button>
-      `;
-      container.appendChild(newRow);
-      newRow.querySelector(".remove-ingredient").addEventListener("click", function () {
-        newRow.remove();
-      });
-    });
-    // Delegate Edit and Delete actions on BOM list.
     document.querySelector("#bom-list-table tbody").addEventListener("click", function (event) {
       const target = event.target;
       if (target.classList.contains("edit-btn")) {
@@ -535,7 +555,7 @@
         const bom = bomMasters[key];
         if (bom) {
           currentEditKey = key;
-          document.getElementById("form-title").textContent = "Edit BOM Master";
+          document.getElementById("form-title").innerText = "Edit Food Item Master";
           document.getElementById("foodItemName").value = bom.foodItem;
           document.getElementById("baseQty").value = bom.baseQty;
           document.getElementById("baseUOM").value = bom.baseUOM;
@@ -554,16 +574,14 @@
               <button type="button" class="remove-ingredient">Remove</button>
             `;
             container.appendChild(row);
-            row.querySelector(".remove-ingredient").addEventListener("click", function () {
-              row.remove();
-            });
+            row.querySelector(".remove-ingredient").addEventListener("click", function () { row.remove(); });
           });
           document.getElementById("bom-list-section").style.display = "none";
           document.getElementById("bom-form-section").style.display = "block";
         }
       } else if (target.classList.contains("delete-btn")) {
         const key = target.getAttribute("data-key");
-        if (confirm("Are you sure you want to delete this BOM Master?")) {
+        if (confirm("Are you sure you want to delete this Food Item Master?")) {
           let bomMasters = getBOMMasters();
           delete bomMasters[key];
           saveBOMMasters(bomMasters);
@@ -571,16 +589,15 @@
         }
       }
     });
-    // Clear localStorage (cache) and reload the page.
     document.getElementById("clear-storage").addEventListener("click", function () {
-      if (confirm("This will clear all stored BOM masters. Continue?")) {
+      if (confirm("This will clear all stored Food Item Masters. Continue?")) {
         localStorage.removeItem("bomMasters");
         location.reload();
       }
     });
 
     /*********************
-     * Admin: UOM Management
+     * Admin: UOM Management (CRUD)
      *********************/
     function renderUOMList() {
       const uomList = getUOMList();
@@ -612,10 +629,7 @@
       const newUOM = document.getElementById("new-uom").value.trim();
       if (!newUOM) { alert("Enter a valid UOM."); return; }
       const uomList = getUOMList();
-      if (uomList.includes(newUOM)) {
-        alert("UOM already exists!");
-        return;
-      }
+      if (uomList.includes(newUOM)) { alert("UOM already exists!"); return; }
       uomList.push(newUOM);
       saveUOMList(uomList);
       document.getElementById("new-uom").value = "";
@@ -623,7 +637,7 @@
     });
 
     /*********************
-     * Kitchen Manager: BOM Calculation
+     * Kitchen Manager: BOM Calculation & Share Options
      *********************/
     document.getElementById("bom-calc-form").addEventListener("submit", function (event) {
       event.preventDefault();
@@ -633,7 +647,7 @@
       if (isNaN(prodQty) || prodQty <= 0) { alert("Please enter a valid production quantity."); return; }
       const bomMasters = getBOMMasters();
       const bom = bomMasters[foodItemKey];
-      if (!bom) { alert("BOM Master not found for the selected food item."); return; }
+      if (!bom) { alert("Food Item Master not found."); return; }
       const factor = prodQty / bom.baseQty;
       let resultHTML = `<h2>BOM for ${bom.foodItem} (${prodQty} ${bom.baseUOM})</h2>`;
       resultHTML += `
@@ -659,9 +673,7 @@
       });
       resultHTML += "</tbody></table>";
       document.getElementById("bom-result").innerHTML = resultHTML;
-      // Show share button container.
       document.getElementById("share-container").style.display = "block";
-      // Hide share options initially.
       document.getElementById("share-options").style.display = "none";
     });
     function populateFoodItems() {
@@ -681,38 +693,23 @@
       const selectedKey = this.value;
       const prodQtyLabel = document.getElementById("prodQty-label");
       if (selectedKey) {
-        const bomMasters = getBOMMasters();
-        const bom = bomMasters[selectedKey];
-        if (bom) {
-          prodQtyLabel.textContent = `Enter Production Quantity (in ${bom.baseUOM}):`;
-        }
-      } else {
-        prodQtyLabel.textContent = "Enter Production Quantity:";
-      }
+        const bom = getBOMMasters()[selectedKey];
+        if (bom) { prodQtyLabel.innerText = `Enter Production Quantity (in ${bom.baseUOM}):`; }
+      } else { prodQtyLabel.innerText = "Enter Production Quantity:"; }
     });
-
-    /*********************
-     * Kitchen: Share Options
-     *********************/
-    // Toggle share options on share button click.
     document.getElementById("share-btn").addEventListener("click", function () {
       const options = document.getElementById("share-options");
       options.style.display = options.style.display === "none" ? "block" : "none";
     });
-    // Share via WhatsApp
     document.getElementById("share-whatsapp").addEventListener("click", function () {
       const bomText = document.getElementById("bom-result").innerText;
       const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(bomText);
       window.open(url, "_blank");
     });
-    // Print BOM
     document.getElementById("print-bom").addEventListener("click", function () {
       window.print();
     });
-    // Kitchen Logout
-    document.getElementById("kitchen-logout").addEventListener("click", function () {
-      location.reload();
-    });
+    document.getElementById("kitchen-logout").addEventListener("click", function () { location.reload(); });
   </script>
 </body>
 </html>
