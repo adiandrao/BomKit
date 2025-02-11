@@ -5,6 +5,8 @@
   <!-- Ensure proper scaling on mobile devices -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BOM Management System</title>
+  <!-- Include html2canvas from CDN for capturing DOM snapshots -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRcdTCXce1J3DRXnPNskMsafpFYZQROfV/1z6EaWdd+20SfhJ5BjqNfB2ULmMy+jwEZiLJlg+jWkQ2kztC+g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
     /* ---------- Base & Reset ---------- */
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -362,10 +364,11 @@
 
   <!-- ---------- Kitchen Manager Section ---------- -->
   <div class="container" id="kitchen-section">
-    <!-- Header for Kitchen -->
+    <!-- Header for Kitchen with Clear Cache and Logout -->
     <header>
       <h1>Kitchen Manager</h1>
       <div class="header-actions">
+        <button id="clear-cache-kitchen" class="clear-btn">Clear Cache</button>
         <button id="kitchen-logout-btn">Logout</button>
       </div>
     </header>
@@ -571,26 +574,6 @@
         select.innerHTML = `<option value="">Select UOM</option>${uomOptions}`;
       });
     }
-    // Add Ingredient event listener
-    document.getElementById("add-ingredient").addEventListener("click", function () {
-      const container = document.getElementById("ingredients-container");
-      const uomOptions = getUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("");
-      const newRow = document.createElement("div");
-      newRow.className = "ingredient-row";
-      newRow.innerHTML = `
-          <input type="text" class="ingredient-name" placeholder="Ingredient Name" required />
-          <input type="number" class="ingredient-qty" placeholder="Quantity" required />
-          <select class="ingredient-unit" required>
-            <option value="">Select UOM</option>
-            ${uomOptions}
-          </select>
-          <button type="button" class="remove-ingredient">Remove</button>
-      `;
-      container.appendChild(newRow);
-      newRow.querySelector(".remove-ingredient").addEventListener("click", function () {
-        container.removeChild(newRow);
-      });
-    });
     document.getElementById("bom-master-form").addEventListener("submit", function (event) {
       event.preventDefault();
       const foodItemName = document.getElementById("foodItemName").value.trim();
@@ -747,6 +730,13 @@
       document.getElementById("share-container").style.display = "block";
       document.getElementById("share-options").style.display = "none";
     });
+    // Kitchen: Clear Cache button (similar to admin)
+    document.getElementById("clear-cache-kitchen").addEventListener("click", function () {
+      if (confirm("This will clear all stored Food Item Masters. Continue?")) {
+        localStorage.removeItem("bomMasters");
+        location.reload();
+      }
+    });
     function populateFoodItems() {
       const bomMasters = getBOMMasters();
       const select = document.getElementById("foodItemSelect");
@@ -768,14 +758,42 @@
         if (bom) { prodQtyLabel.innerText = `Enter Production Quantity (in ${bom.baseUOM}):`; }
       } else { prodQtyLabel.innerText = "Enter Production Quantity:"; }
     });
+    // Share BOM as image via WhatsApp using html2canvas and Web Share API
     document.getElementById("share-btn").addEventListener("click", function () {
+      // Toggle share options visibility
       const options = document.getElementById("share-options");
       options.style.display = options.style.display === "none" ? "block" : "none";
     });
-    document.getElementById("share-whatsapp").addEventListener("click", function () {
-      const bomText = document.getElementById("bom-result").innerText;
-      const url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(bomText);
-      window.open(url, "_blank");
+    document.getElementById("share-whatsapp").addEventListener("click", async function () {
+      // Capture the BOM result container as an image
+      const bomResult = document.getElementById("bom-result");
+      if (!bomResult) { alert("No BOM to share."); return; }
+      try {
+        const canvas = await html2canvas(bomResult);
+        canvas.toBlob(async function(blob) {
+          // Create a File from the blob (if Web Share API v2 is supported)
+          const file = new File([blob], "bom.png", { type: "image/png" });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                title: "BOM Snapshot",
+                text: "Here is the BOM snapshot:",
+                files: [file],
+              });
+            } catch (err) {
+              console.error("Error sharing:", err);
+              alert("Sharing failed.");
+            }
+          } else {
+            // Fallback: open the image in a new tab
+            const url = URL.createObjectURL(blob);
+            window.open(url, "_blank");
+          }
+        }, "image/png");
+      } catch (error) {
+        console.error("Error capturing BOM:", error);
+        alert("Could not capture BOM snapshot.");
+      }
     });
     document.getElementById("print-bom").addEventListener("click", function () {
       window.print();
