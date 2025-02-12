@@ -915,7 +915,7 @@
       const bom = bomMasters[foodItemKey];
       if (!bom) { alert("Food Item Master not found."); return; }
       const factor = prodQty / bom.baseQty;
-      let resultHTML = `<h2>BOM for ${bom.foodItem} (${prodQty} ${bom.baseUOM})</h2>`;
+      let resultHTML = `<h2>Item list for ${bom.foodItem} (${prodQty} ${bom.baseUOM})</h2>`;
       resultHTML += `<table>
           <thead>
             <tr>
