@@ -12,7 +12,7 @@
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-analytics.js";
     import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 
-    // Your web app's Firebase configuration (replace these values with your own)
+    // Your web app's Firebase configuration – REPLACE these values with your own!
     const firebaseConfig = {
       apiKey: "AIzaSyAhbi8DUORRyvmF9NkupHpbwcvpKjuB22Q",
       authDomain: "bomkit-41713.firebaseapp.com",
@@ -25,12 +25,11 @@
 
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    // Initialize Firestore and export it for use in our main code
-    export const db = getFirestore(app);
+    getAnalytics(app);
+    const db = getFirestore(app);
 
     // -------------------- BOM Masters (Food Item Masters) --------------------
-    export async function getBOMMastersFromFirestore() {
+    async function getBOMMastersFromFirestore() {
       const bomMasters = {};
       try {
         const querySnapshot = await getDocs(collection(db, "BOMMasters"));
@@ -43,7 +42,7 @@
       return bomMasters;
     }
 
-    export async function saveBOMMasterToFirestore(key, bomData) {
+    async function saveBOMMasterToFirestore(key, bomData) {
       try {
         await setDoc(doc(db, "BOMMasters", key), bomData);
         console.log("BOM Master saved to Firestore");
@@ -52,7 +51,7 @@
       }
     }
 
-    export async function deleteBOMMasterFromFirestore(key) {
+    async function deleteBOMMasterFromFirestore(key) {
       try {
         await deleteDoc(doc(db, "BOMMasters", key));
         console.log("BOM Master deleted from Firestore");
@@ -62,8 +61,7 @@
     }
 
     // -------------------- UOM Masters --------------------
-    // Each UOM is stored as a document in the "UOMMasters" collection with the UOM string as the document ID.
-    export async function getUOMListFromFirestore() {
+    async function getUOMListFromFirestore() {
       const uomList = [];
       try {
         const querySnapshot = await getDocs(collection(db, "UOMMasters"));
@@ -76,7 +74,7 @@
       return uomList;
     }
 
-    export async function addUOMToFirestore(uom) {
+    async function addUOMToFirestore(uom) {
       try {
         await setDoc(doc(db, "UOMMasters", uom), { uom });
         console.log("UOM added to Firestore");
@@ -85,7 +83,7 @@
       }
     }
 
-    export async function deleteUOMFromFirestore(uom) {
+    async function deleteUOMFromFirestore(uom) {
       try {
         await deleteDoc(doc(db, "UOMMasters", uom));
         console.log("UOM deleted from Firestore");
@@ -95,9 +93,7 @@
     }
 
     // -------------------- Process Masters --------------------
-    // Process Masters are stored in the "ProcessMasters" collection,
-    // with the document ID as the food item key (lowercase) and data { processes: [...] }
-    export async function getProcessMastersFromFirestore() {
+    async function getProcessMastersFromFirestore() {
       const processMasters = {};
       try {
         const querySnapshot = await getDocs(collection(db, "ProcessMasters"));
@@ -110,7 +106,7 @@
       return processMasters;
     }
 
-    export async function saveProcessMasterToFirestore(key, processData) {
+    async function saveProcessMasterToFirestore(key, processData) {
       try {
         await setDoc(doc(db, "ProcessMasters", key), processData);
         console.log("Process Master saved to Firestore");
@@ -119,7 +115,7 @@
       }
     }
 
-    export async function deleteProcessMasterFromFirestore(key) {
+    async function deleteProcessMasterFromFirestore(key) {
       try {
         await deleteDoc(doc(db, "ProcessMasters", key));
         console.log("Process Master deleted from Firestore");
@@ -127,8 +123,19 @@
         console.error("Error deleting Process Master: ", error);
       }
     }
-  </script>
 
+    // Expose our functions to the global (window) object so inline scripts can access them
+    window.getBOMMastersFromFirestore = getBOMMastersFromFirestore;
+    window.saveBOMMasterToFirestore = saveBOMMasterToFirestore;
+    window.deleteBOMMasterFromFirestore = deleteBOMMasterFromFirestore;
+    window.getUOMListFromFirestore = getUOMListFromFirestore;
+    window.addUOMToFirestore = addUOMToFirestore;
+    window.deleteUOMFromFirestore = deleteUOMFromFirestore;
+    window.getProcessMastersFromFirestore = getProcessMastersFromFirestore;
+    window.saveProcessMasterToFirestore = saveProcessMasterToFirestore;
+    window.deleteProcessMasterFromFirestore = deleteProcessMasterFromFirestore;
+  </script>
+  
   <!-- html2canvas (optional: remove if not used) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" 
           integrity="sha512-BNaRcdTCXce1J3DRXnPNskMsafpFYZQROfV/1z6EaWdd+20SfhJ5BjqNfB2ULmMy+jwEZiLJlg+jWkQ2kztC+g==" 
@@ -515,13 +522,9 @@
     </div>
   </div>
   
-  <!-- -------------------- Firebase Integration Scripts for Admin (BOM, UOM, Process) -------------------- -->
-  <script type="module">
-    import { db, getBOMMastersFromFirestore, saveBOMMasterToFirestore, deleteBOMMasterFromFirestore,
-             getUOMListFromFirestore, addUOMToFirestore, deleteUOMFromFirestore,
-             getProcessMastersFromFirestore, saveProcessMasterToFirestore, deleteProcessMasterFromFirestore } from "./"; // Adjust path if needed
-
-    // -------------------- BOM Masters (Food Item Masters) --------------------
+  <!-- -------------------- Firebase Integration for Admin -------------------- -->
+  <script>
+    // BOM Masters
     async function refreshBOMList() {
       const bomMasters = await getBOMMastersFromFirestore();
       const tbody = document.querySelector("#bom-list-table tbody");
@@ -592,7 +595,7 @@
       // (Edit functionality for BOM Masters can be added here.)
     });
 
-    // -------------------- UOM Masters --------------------
+    // UOM Masters
     async function refreshUOMList() {
       const uomList = await getUOMListFromFirestore();
       const ul = document.getElementById("uom-list");
@@ -627,7 +630,7 @@
       refreshUOMList();
     });
 
-    // -------------------- Process Masters --------------------
+    // Process Masters
     async function refreshProcessMasters() {
       const processMasters = await getProcessMastersFromFirestore();
       const tbody = document.getElementById("process-table-body");
@@ -696,7 +699,7 @@
       // (Edit functionality for Process Masters can be added here.)
     });
 
-    // -------------------- Helper Functions to Populate Kitchen Dropdowns --------------------
+    // Helper Functions to Populate Kitchen Dropdowns
     async function populateFoodItems() {
       const bomMasters = await getBOMMastersFromFirestore();
       const select = document.getElementById("foodItemSelect");
@@ -739,7 +742,7 @@
       }
     }
 
-    // Initial population on page load
+    // Initial population on page load for Kitchen dropdowns
     refreshBOMList();
     refreshUOMList();
     refreshProcessMasters();
@@ -747,20 +750,60 @@
     populateCookFoodItems();
     populateProcessFoodItems();
 
+    // Utility Functions for Resetting Form Fields
+    function resetIngredients() {
+      const container = document.getElementById("ingredients-container");
+      container.innerHTML = `
+        <h3>Ingredients</h3>
+        <div class="ingredient-row">
+          <input type="text" class="ingredient-name" placeholder="Ingredient Name" required />
+          <input type="number" class="ingredient-qty" placeholder="Quantity" required />
+          <select class="ingredient-unit" required>
+            <option value="">Select UOM</option>
+          </select>
+          <button type="button" class="remove-ingredient">Remove</button>
+        </div>
+      `;
+      const defaultSelect = container.querySelector(".ingredient-unit");
+      getUOMListFromFirestore().then(uomList => {
+        defaultSelect.innerHTML = `<option value="">Select UOM</option>` +
+          uomList.map(uom => `<option value="${uom}">${uom}</option>`).join("");
+      });
+      container.querySelector(".remove-ingredient").addEventListener("click", function() {
+        const row = this.closest(".ingredient-row");
+        if (row) row.remove();
+      });
+    }
+
+    function resetProcessSteps() {
+      const container = document.getElementById("process-steps-container");
+      container.innerHTML = `
+        <h3>Process Steps</h3>
+        <div class="process-step-row">
+          <input type="text" class="process-step" placeholder="Step description" required>
+          <button type="button" class="remove-process-step">Remove</button>
+        </div>
+      `;
+      container.querySelector(".remove-process-step").addEventListener("click", function() {
+        const row = this.closest(".process-step-row");
+        if (row) row.remove();
+      });
+    }
   </script>
   
   <!-- -------------------- UI Scripts for Cook Food & Other Interactions -------------------- -->
   <script>
-    // -------------------- Login Functionality --------------------
+    // Login Functionality
     document.getElementById("login-form").addEventListener("submit", function(event) {
       event.preventDefault();
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
       // Hard-coded login credentials:
+      // Admin: admin / admin123
+      // Kitchen: kitchen / kitchen123
       if (username === "admin" && password === "admin123") {
         document.getElementById("login-section").style.display = "none";
         document.getElementById("admin-section").style.display = "block";
-        showDashboard();
       } else if (username === "kitchen" && password === "kitchen123") {
         document.getElementById("login-section").style.display = "none";
         document.getElementById("kitchen-section").style.display = "block";
@@ -771,7 +814,29 @@
       }
     });
 
-    // -------------------- Cook Food View – Generate Cooking Process --------------------
+    // Admin Clear Cache & Logout
+    document.getElementById("clear-cache-dashboard").addEventListener("click", function() {
+      if (confirm("This will clear localStorage (Firebase data remains intact).")) {
+        localStorage.removeItem("bomMasters");
+        location.reload();
+      }
+    });
+    document.getElementById("admin-logout-btn").addEventListener("click", function() {
+      location.reload();
+    });
+
+    // Kitchen Clear Cache & Logout
+    document.getElementById("clear-cache-kitchen").addEventListener("click", function() {
+      if (confirm("This will clear localStorage (Firebase data remains intact).")) {
+        localStorage.removeItem("bomMasters");
+        location.reload();
+      }
+    });
+    document.getElementById("kitchen-logout-btn").addEventListener("click", function() {
+      location.reload();
+    });
+
+    // Cook Food – Generate Cooking Process
     function updateTotalCookingTime() {
       const rows = document.querySelectorAll("#process-steps-body tr");
       let total = 0;
@@ -789,8 +854,8 @@
       const cookQty = parseFloat(document.getElementById("cookQty").value);
       if (!foodItemKey) { alert("Please select a food item."); return; }
       if (isNaN(cookQty) || cookQty <= 0) { alert("Please enter a valid quantity."); return; }
-      // For simplicity, we use local processMasters stored in localStorage for now.
-      // (You can update this to fetch Process Masters from Firestore if desired.)
+      // For simplicity, we use local Process Masters (from localStorage) for the cooking process.
+      // (You can update this to fetch from Firestore if desired.)
       const proc = getProcessMasters()[foodItemKey];
       if (!proc) { alert("No cooking process defined for this food item."); return; }
       const tbody = document.getElementById("process-steps-body");
