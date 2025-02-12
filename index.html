@@ -23,9 +23,10 @@
       measurementId: "G-24X6FCSGFT"
     };
 
-    // Initialize Firebase and Firestore
+    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
+    // Initialize Firestore and export it for use in our main code
     export const db = getFirestore(app);
 
     // -------------------- BOM Masters (Food Item Masters) --------------------
@@ -61,8 +62,7 @@
     }
 
     // -------------------- UOM Masters --------------------
-    // In this example, we store each UOM as a document in the "UOMMasters" collection,
-    // where the document ID is the UOM string.
+    // Each UOM is stored as a document in the "UOMMasters" collection with the UOM string as the document ID.
     export async function getUOMListFromFirestore() {
       const uomList = [];
       try {
@@ -128,7 +128,7 @@
       }
     }
   </script>
-  
+
   <!-- html2canvas (optional: remove if not used) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" 
           integrity="sha512-BNaRcdTCXce1J3DRXnPNskMsafpFYZQROfV/1z6EaWdd+20SfhJ5BjqNfB2ULmMy+jwEZiLJlg+jWkQ2kztC+g==" 
@@ -273,13 +273,10 @@
     #cook-share-whatsapp, #cook-print {
       padding: 10px 15px; background: #17a2b8; color: #fff; border: none; border-radius: 4px; cursor: pointer; margin: 5px;
     }
-    #cook-share-whatsapp:hover, #cook-print:hover {
-      background: #138496;
-    }
+    #cook-share-whatsapp:hover, #cook-print:hover { background: #138496; }
     /* Kitchen Back Button */
     .kitchen-back-btn {
-      display: inline-block; margin: 20px auto; padding: 10px 20px;
-      background: #6c757d; border: none; border-radius: 4px; color: #fff; cursor: pointer; font-size: 1rem;
+      display: inline-block; margin: 20px auto; padding: 10px 20px; background: #6c757d; border: none; border-radius: 4px; color: #fff; cursor: pointer; font-size: 1rem;
     }
     .kitchen-back-btn:hover { background: #5a6268; }
     /* ---------- Utility Classes ---------- */
@@ -592,7 +589,7 @@
           populateProcessFoodItems();
         }
       }
-      // (Edit functionality would need to load data from Firestore into the form.)
+      // (Edit functionality for BOM Masters can be added here.)
     });
 
     // -------------------- UOM Masters --------------------
@@ -696,7 +693,7 @@
           populateCookFoodItems();
         }
       }
-      // (Edit functionality for Process Masters can be added similarly.)
+      // (Edit functionality for Process Masters can be added here.)
     });
 
     // -------------------- Helper Functions to Populate Kitchen Dropdowns --------------------
@@ -742,15 +739,39 @@
       }
     }
 
-    // Call these functions on page load to update kitchen dropdowns
+    // Initial population on page load
+    refreshBOMList();
+    refreshUOMList();
+    refreshProcessMasters();
     populateFoodItems();
     populateCookFoodItems();
     populateProcessFoodItems();
+
   </script>
   
-  <!-- -------------------- UI Scripts for Cook Food & Other UI Interactions -------------------- -->
+  <!-- -------------------- UI Scripts for Cook Food & Other Interactions -------------------- -->
   <script>
-    // Cook Food View – Generate Cooking Process Table with Start/Stop timers
+    // -------------------- Login Functionality --------------------
+    document.getElementById("login-form").addEventListener("submit", function(event) {
+      event.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      // Hard-coded login credentials:
+      if (username === "admin" && password === "admin123") {
+        document.getElementById("login-section").style.display = "none";
+        document.getElementById("admin-section").style.display = "block";
+        showDashboard();
+      } else if (username === "kitchen" && password === "kitchen123") {
+        document.getElementById("login-section").style.display = "none";
+        document.getElementById("kitchen-section").style.display = "block";
+        populateFoodItems();
+        populateCookFoodItems();
+      } else {
+        alert("Invalid credentials!");
+      }
+    });
+
+    // -------------------- Cook Food View – Generate Cooking Process --------------------
     function updateTotalCookingTime() {
       const rows = document.querySelectorAll("#process-steps-body tr");
       let total = 0;
@@ -768,9 +789,9 @@
       const cookQty = parseFloat(document.getElementById("cookQty").value);
       if (!foodItemKey) { alert("Please select a food item."); return; }
       if (isNaN(cookQty) || cookQty <= 0) { alert("Please enter a valid quantity."); return; }
-      // For simplicity, we still use the local (in-memory) Process Masters function here.
-      // You can update this to fetch from Firestore if desired.
-      const proc = (window.processMastersLocal = window.processMastersLocal || getProcessMasters())[foodItemKey];
+      // For simplicity, we use local processMasters stored in localStorage for now.
+      // (You can update this to fetch Process Masters from Firestore if desired.)
+      const proc = getProcessMasters()[foodItemKey];
       if (!proc) { alert("No cooking process defined for this food item."); return; }
       const tbody = document.getElementById("process-steps-body");
       tbody.innerHTML = "";
