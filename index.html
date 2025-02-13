@@ -220,7 +220,7 @@
   // ✅ Import Firebase SDK (Including getApps)
   import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 
   // Firebase Configuration (Replace with your credentials)
   const firebaseConfig = {
@@ -295,7 +295,33 @@
     await signOut(auth); // Sign out the user
     location.reload(); // Refresh the page
   });
-</script>
+
+  <! ...................UOM Management......................> 
+     // ✅ Fetch and Render UOM List from Firestore
+  function renderUOMList() {
+  onSnapshot(collection(db, "uom_list"), (snapshot) => {
+    const ul = document.getElementById("uom-list");
+    ul.innerHTML = ""; // Clear the existing list before updating
+
+    snapshot.forEach((doc) => {
+      const uom = doc.data().name;
+      const li = document.createElement("li");
+      li.innerHTML = `
+        ${uom} 
+        <button class="clear-btn" onclick="deleteUOM('${doc.id}')">Delete</button>
+      `;
+      ul.appendChild(li);
+    });
+  });
+}
+
+// ✅ Call this function when the page loads
+fetchFoodItems();
+fetchUOMList();
+fetchProcessMasters();
+
+ 
+ </script>
 
 <!-- Error Message Display -->
 <div id="error-message" style="color: red; display: none; text-align: center; margin-top: 10px;"></div>
@@ -539,29 +565,36 @@
       pasta: { processes: ["Boil pasta until al dente", "Heat tomato sauce", "Mix pasta with sauce", "Top with Parmesan and basil", "Serve warm"] }
     };
     
-    function getBOMMasters() {
-      const stored = localStorage.getItem("bomMasters");
-      if (stored) return JSON.parse(stored);
-      localStorage.setItem("bomMasters", JSON.stringify(defaultBOMMaster));
-      return defaultBOMMaster;
-    }
-    function saveBOMMasters(bomMasters) { localStorage.setItem("bomMasters", JSON.stringify(bomMasters)); }
-    
-    function getUOMList() {
-      const stored = localStorage.getItem("uomList");
-      if (stored) return JSON.parse(stored);
-      localStorage.setItem("uomList", JSON.stringify(defaultUOMList));
-      return defaultUOMList;
-    }
-    function saveUOMList(uomList) { localStorage.setItem("uomList", JSON.stringify(uomList)); }
-    
-    function getProcessMasters() {
-      const stored = localStorage.getItem("processMasters");
-      if (stored) return JSON.parse(stored);
-      localStorage.setItem("processMasters", JSON.stringify(defaultProcessMasters));
-      return defaultProcessMasters;
-    }
-    function saveProcessMasters(processMasters) { localStorage.setItem("processMasters", JSON.stringify(processMasters)); }
+// ✅ Fetch Food Items in Real-Time
+function fetchFoodItems() {
+  onSnapshot(collection(db, "food_items"), (snapshot) => {
+    const foodItems = {};
+    snapshot.forEach((doc) => {
+      foodItems[doc.id] = doc.data();
+    });
+    renderFoodItems(foodItems); // Call UI update function
+  });
+}
+
+// ✅ Fetch UOM List
+function fetchUOMList() {
+  onSnapshot(collection(db, "uom_list"), (snapshot) => {
+    const uomList = snapshot.docs.map(doc => doc.data().name);
+    renderUOMList(uomList);
+  });
+}
+
+// ✅ Fetch Process Masters in Real-Time
+function fetchProcessMasters() {
+  onSnapshot(collection(db, "process_masters"), (snapshot) => {
+    const processMasters = {};
+    snapshot.forEach((doc) => {
+      processMasters[doc.id] = doc.data();
+    });
+    renderProcessMasters(processMasters);
+  });
+}
+
     
        
     /* ------------------ Admin Dashboard & Navigation ------------------ */
@@ -609,27 +642,27 @@
     
     /* ------------------ Admin: Manage Food Items ------------------ */
     let currentEditKey = null;
-    function refreshBOMList() {
-      const bomMasters = getBOMMasters();
-      const tbody = document.querySelector("#bom-list-table tbody");
-      tbody.innerHTML = "";
-      for (const key in bomMasters) {
-        if (bomMasters.hasOwnProperty(key)) {
-          const bom = bomMasters[key];
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${bom.foodItem}</td>
-            <td>${bom.baseQty} ${bom.baseUOM}</td>
-            <td>${bom.ingredients.length}</td>
-            <td>
-              <button class="action-btn edit-btn" data-key="${key}">Edit</button>
-              <button class="action-btn delete-btn" data-key="${key}">Delete</button>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        }
-      }
-    }
+
+    function refreshBOMList(foodItems) {
+  const tbody = document.querySelector("#bom-list-table tbody");
+  tbody.innerHTML = "";
+
+  Object.keys(foodItems).forEach((key) => {
+    const foodItem = foodItems[key];
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${foodItem.name}</td>
+      <td>${foodItem.baseQty} ${foodItem.baseUOM}</td>
+      <td>${foodItem.ingredients.length}</td>
+      <td>
+        <button class="action-btn edit-btn" onclick="editFoodItem('${key}')">Edit</button>
+        <button class="action-btn delete-btn" onclick="deleteFoodItem('${key}')">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+    
     document.getElementById("search-box").addEventListener("input", function() {
       const query = this.value.trim().toLowerCase();
       const rows = document.querySelectorAll("#bom-list-table tbody tr");
@@ -783,29 +816,7 @@
     });
     
     /* ------------------ Admin: UOM Management ------------------ */
-    function renderUOMList() {
-      const uomList = getUOMList();
-      const ul = document.getElementById("uom-list");
-      ul.innerHTML = "";
-      uomList.forEach((uom, index) => {
-        const li = document.createElement("li");
-        li.style.marginBottom = "10px";
-        li.textContent = uom + " ";
-        const delBtn = document.createElement("button");
-        delBtn.textContent = "Delete";
-        delBtn.className = "clear-btn";
-        delBtn.style.padding = "5px 10px";
-        delBtn.addEventListener("click", function() {
-          if (confirm(`Delete UOM "${uom}"?`)) {
-            const updated = uomList.filter((_, i) => i !== index);
-            saveUOMList(updated);
-            renderUOMList();
-          }
-        });
-        li.appendChild(delBtn);
-        ul.appendChild(li);
-      });
-    }
+  
     document.getElementById("uom-form").addEventListener("submit", function(event) {
       event.preventDefault();
       const newUOM = document.getElementById("new-uom").value.trim();
@@ -835,28 +846,26 @@
       }
     }
     
-    function renderProcessMasters() {
-      const processMasters = getProcessMasters();
+    function renderProcessMasters(processMasters) {
       const tbody = document.getElementById("process-table-body");
-      tbody.innerHTML = "";
-      for (const key in processMasters) {
-        if (processMasters.hasOwnProperty(key)) {
-          const proc = processMasters[key];
-          const stepsText = proc.processes.join("<br>");
-          const tr = document.createElement("tr");
-          tr.setAttribute("data-key", key);
-          tr.innerHTML = `
-            <td>${key}</td>
-            <td>${stepsText}</td>
-            <td>
-              <button class="action-btn edit-btn" data-key="${key}">Edit</button>
-              <button class="action-btn delete-btn" data-key="${key}">Delete</button>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        }
-      }
-    }
+  tbody.innerHTML = "";
+
+  Object.keys(processMasters).forEach((key) => {
+    const proc = processMasters[key];
+    const stepsText = proc.steps.join("<br>");
+    
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${proc.foodItem}</td>
+      <td>${stepsText}</td>
+      <td>
+        <button class="action-btn edit-btn" onclick="editProcess('${key}')">Edit</button>
+        <button class="action-btn delete-btn" onclick="deleteProcess('${key}')">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
     document.getElementById("show-add-process").addEventListener("click", function() {
       currentProcessKey = null;
       document.getElementById("process-form-title").innerText = "Add New Process Master";
