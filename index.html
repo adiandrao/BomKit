@@ -494,9 +494,9 @@
   };
 
   // Initialize Firebase
-  console.log("Firebase is being initialized...");
-  const app = initializeApp(firebaseConfig);
-  console.log("Firebase App Initialized:", app);
+  // ✅ Only initialize if Firebase App doesn't already exist
+  const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+  console.log("Firebase App Status:", app); // Debugging
 
   const auth = getAuth(app);
   const db = getFirestore(app);
