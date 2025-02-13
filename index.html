@@ -476,23 +476,87 @@
     function saveProcessMasters(processMasters) { localStorage.setItem("processMasters", JSON.stringify(processMasters)); }
     
     /* ------------------ Login Functionality ------------------ */
-    document.getElementById("login-form").addEventListener("submit", function(event) {
-      event.preventDefault();
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value.trim();
-      if (username === "admin" && password === "admin123") {
-        document.getElementById("login-section").style.display = "none";
-        document.getElementById("admin-section").style.display = "block";
-        showDashboard();
-      } else if (username === "kitchen" && password === "kitchen123") {
-        document.getElementById("login-section").style.display = "none";
-        document.getElementById("kitchen-section").style.display = "block";
-        populateFoodItems();
-        populateCookFoodItems();
+    <script type="module">
+  // Import Firebase SDK (v11.3.1)
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+
+  // Firebase Configuration (Replace with your credentials)
+  const firebaseConfig = {
+    apiKey: "AIzaSyAhbi8DUORRyvmF9NkupHpbwcvpKjuB22Q",
+    authDomain: "bomkit-41713.firebaseapp.com",
+    projectId: "bomkit-41713",
+    storageBucket: "bomkit-41713.appspot.com", 
+    messagingSenderId: "1049877683664",
+    appId: "1:1049877683664:web:d22ea4dbec7f62712b2dd5",
+    measurementId: "G-24X6FCSGFT"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Function to display error messages in the UI
+  function showError(message) {
+    const errorDiv = document.getElementById("error-message");
+    errorDiv.innerText = message;
+    errorDiv.style.display = "block"; // Make the error message visible
+  }
+
+  // Login Functionality using Firebase Authentication
+  document.getElementById("login-form").addEventListener("submit", async (event) => {
+    event.preventDefault(); // Prevent default form submission
+
+    const email = document.getElementById("username").value.trim(); // Get user email input
+    const password = document.getElementById("password").value.trim(); // Get user password input
+
+    try {
+      // Authenticate user with Firebase Authentication
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user; // Extract authenticated user details
+      console.log("User logged in:", user);
+
+      // Retrieve user role from Firestore using UID as document ID
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data(); // Extract user role information
+        
+        // Show respective dashboard based on user role
+        if (userData.role === "admin") {
+          document.getElementById("login-section").style.display = "none";
+          document.getElementById("admin-section").style.display = "block";
+        } else if (userData.role === "kitchen") {
+          document.getElementById("login-section").style.display = "none";
+          document.getElementById("kitchen-section").style.display = "block";
+        } else {
+          showError("Unknown role. Contact admin.");
+        }
       } else {
-        alert("Invalid credentials!");
+        showError("User role not found in Firestore! Please contact admin.");
       }
-    });
+    } catch (error) {
+      showError("Login failed: " + error.message); // Display authentication errors
+    }
+  });
+
+  // Logout Functionality for Admin
+  document.getElementById("admin-logout-btn").addEventListener("click", async () => {
+    await signOut(auth); // Sign out the user
+    location.reload(); // Refresh the page
+  });
+
+  // Logout Functionality for Kitchen
+  document.getElementById("kitchen-logout-btn").addEventListener("click", async () => {
+    await signOut(auth); // Sign out the user
+    location.reload(); // Refresh the page
+  });
+</script>
+
+<!-- Error Message Display -->
+<div id="error-message" style="color: red; display: none; text-align: center; margin-top: 10px;"></div>
+
     
     /* ------------------ Admin Dashboard & Navigation ------------------ */
     function showDashboard() {
