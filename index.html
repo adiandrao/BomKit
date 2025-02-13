@@ -296,9 +296,41 @@
     location.reload(); // Refresh the page
   });
 
-  //...................UOM Management......................
-     // ✅ Fetch and Render UOM List from Firestore
-  function renderUOMList() {
+  //...................Master Management......................
+     // ✅ Fetch and Render masters from Firestore
+
+   // ✅ Fetch Food Items in Real-Time
+function fetchFoodItems() {
+  onSnapshot(collection(db, "food_items"), (snapshot) => {
+    const foodItems = {};
+    snapshot.forEach((doc) => {
+      foodItems[doc.id] = doc.data();
+    });
+    renderFoodItems(foodItems); // Call UI update function
+  });
+}
+
+// ✅ Fetch UOM List
+function fetchUOMList() {
+  onSnapshot(collection(db, "uom_list"), (snapshot) => {
+    const uomList = snapshot.docs.map(doc => doc.data().name);
+    renderUOMList(uomList);
+  });
+}
+
+// ✅ Fetch Process Masters in Real-Time
+function fetchProcessMasters() {
+  onSnapshot(collection(db, "process_masters"), (snapshot) => {
+    const processMasters = {};
+    snapshot.forEach((doc) => {
+      processMasters[doc.id] = doc.data();
+    });
+    renderProcessMasters(processMasters);
+  });
+}
+  
+   
+   function renderUOMList() {
   onSnapshot(collection(db, "uom_list"), (snapshot) => {
     const ul = document.getElementById("uom-list");
     ul.innerHTML = ""; // Clear the existing list before updating
@@ -312,6 +344,27 @@
       `;
       ul.appendChild(li);
     });
+  });
+}
+
+   function renderProcessMasters(processMasters) {
+      const tbody = document.getElementById("process-table-body");
+  tbody.innerHTML = "";
+
+  Object.keys(processMasters).forEach((key) => {
+    const proc = processMasters[key];
+    const stepsText = proc.steps.join("<br>");
+    
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${proc.foodItem}</td>
+      <td>${stepsText}</td>
+      <td>
+        <button class="action-btn edit-btn" onclick="editProcess('${key}')">Edit</button>
+        <button class="action-btn delete-btn" onclick="deleteProcess('${key}')">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
   });
 }
 
@@ -565,37 +618,6 @@ fetchProcessMasters();
       pasta: { processes: ["Boil pasta until al dente", "Heat tomato sauce", "Mix pasta with sauce", "Top with Parmesan and basil", "Serve warm"] }
     };
     
-// ✅ Fetch Food Items in Real-Time
-function fetchFoodItems() {
-  onSnapshot(collection(db, "food_items"), (snapshot) => {
-    const foodItems = {};
-    snapshot.forEach((doc) => {
-      foodItems[doc.id] = doc.data();
-    });
-    renderFoodItems(foodItems); // Call UI update function
-  });
-}
-
-// ✅ Fetch UOM List
-function fetchUOMList() {
-  onSnapshot(collection(db, "uom_list"), (snapshot) => {
-    const uomList = snapshot.docs.map(doc => doc.data().name);
-    renderUOMList(uomList);
-  });
-}
-
-// ✅ Fetch Process Masters in Real-Time
-function fetchProcessMasters() {
-  onSnapshot(collection(db, "process_masters"), (snapshot) => {
-    const processMasters = {};
-    snapshot.forEach((doc) => {
-      processMasters[doc.id] = doc.data();
-    });
-    renderProcessMasters(processMasters);
-  });
-}
-
-    
        
     /* ------------------ Admin Dashboard & Navigation ------------------ */
     function showDashboard() {
@@ -846,27 +868,7 @@ function fetchProcessMasters() {
       }
     }
     
-    function renderProcessMasters(processMasters) {
-      const tbody = document.getElementById("process-table-body");
-  tbody.innerHTML = "";
-
-  Object.keys(processMasters).forEach((key) => {
-    const proc = processMasters[key];
-    const stepsText = proc.steps.join("<br>");
-    
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${proc.foodItem}</td>
-      <td>${stepsText}</td>
-      <td>
-        <button class="action-btn edit-btn" onclick="editProcess('${key}')">Edit</button>
-        <button class="action-btn delete-btn" onclick="deleteProcess('${key}')">Delete</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-    document.getElementById("show-add-process").addEventListener("click", function() {
+     document.getElementById("show-add-process").addEventListener("click", function() {
       currentProcessKey = null;
       document.getElementById("process-form-title").innerText = "Add New Process Master";
       populateProcessFoodItems();
