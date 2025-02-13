@@ -329,6 +329,26 @@ function fetchProcessMasters() {
   });
 }
   
+//...................Render Masters.................   
+  function renderFoodItems(foodItems) {
+  const tbody = document.querySelector("#bom-list-table tbody");
+  tbody.innerHTML = "";
+
+  Object.keys(foodItems).forEach((key) => {
+    const foodItem = foodItems[key];
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${foodItem.name}</td>
+      <td>${foodItem.baseQty} ${foodItem.baseUOM}</td>
+      <td>${foodItem.ingredients.length}</td>
+      <td>
+        <button class="action-btn edit-btn" onclick="editFoodItem('${key}')">Edit</button>
+        <button class="action-btn delete-btn" onclick="deleteFoodItem('${key}')">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
    
    function renderUOMList() {
   onSnapshot(collection(db, "uom_list"), (snapshot) => {
