@@ -294,6 +294,7 @@
 
    // ✅ Fetch Food Items in Real-Time
 function fetchFoodItems() {
+  try {
   onSnapshot(collection(db, "food_items"), (snapshot) => {
     const foodItems = {};
     snapshot.forEach((doc) => {
@@ -302,13 +303,14 @@ function fetchFoodItems() {
     renderFoodItems(foodItems); // Call UI update function
   });
 } catch (error) {
-    console.error("Firestore Error:", error);
+    console.error("❌ Firestore Error:", error);
     alert("Failed to fetch food items. Please check Firestore rules.");
   }
 }
 
 // ✅ Fetch UOM List
 function fetchUOMList() {
+  try { 
   onSnapshot(collection(db, "uom_list"), (snapshot) => {
     const uomList = snapshot.docs.map(doc => doc.data().name);
     renderUOMList(uomList);
@@ -321,6 +323,7 @@ function fetchUOMList() {
 
 // ✅ Fetch Process Masters in Real-Time
 function fetchProcessMasters() {
+   try {
   onSnapshot(collection(db, "process_masters"), (snapshot) => {
     const processMasters = {};
     snapshot.forEach((doc) => {
