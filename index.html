@@ -255,7 +255,6 @@
   async function checkUserRole(userId) {
   console.log("🔍 Checking user role for UID:", userId);
    
-   try {
   const userDoc = await getDoc(doc(db, "users", user.uid));
   if (userDoc.exists()) {
     const userData = userDoc.data(); // Extract user role information
@@ -273,9 +272,6 @@
     }
   } else {
     showError("User role not found in Firestore! Please contact admin.");
-  }
-} catch (error) {
-  showError("Login failed: " + error.message); // Display authentication errors
   }
 }
    
