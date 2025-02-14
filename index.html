@@ -347,17 +347,18 @@ function fetchFoodItems() {
 }
 
 // ✅ Fetch UOM List
-function fetchUOMList() {
-  try { 
-  onSnapshot(collection(db, "uom_list"), (snapshot) => {
+async function fetchUOMList() {
+  try {
+    const snapshot = await getDocs(collection(db, "uom_list"));
     const uomList = snapshot.docs.map(doc => doc.data().name);
-    renderUOMList(uomList);
-  });
-} catch (error) {
-    console.error("Firestore Error:", error);
+    return uomList; // ✅ Now it returns the UOM list
+  } catch (error) {
+    console.error("❌ Firestore Error:", error);
     alert("Failed to fetch UOM List. Please check Firestore rules.");
+    return []; // Return an empty array if an error occurs
   }
 }
+
 
 // ✅ Fetch Process Masters in Real-Time
 function fetchProcessMasters() {
@@ -816,8 +817,9 @@ async function deleteprocessmaster(processmasterId) {
         if(row) row.remove();
       });
     }
-    function renderItemMasterOptions() {
-      const uomOptions = fetchUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("");
+    async function renderItemMasterOptions() {
+      const uomList = await fetchUOMList(); // ✅ Wait for the UOM data
+      const uomOptions = uomList.map(uom => `<option value="${uom}">${uom}</option>`).join("");
       document.getElementById("baseUOM").innerHTML = `<option value="">Select UOM</option>${uomOptions}`;
       document.querySelectorAll(".ingredient-unit").forEach(select => {
         select.innerHTML = `<option value="">Select UOM</option>${uomOptions}`;
