@@ -236,10 +236,13 @@
   if (user) {
     console.log("✅ User is logged in:", user.uid);
     // Prevents running onAuthStateChanged when logging in manually
-    if (!document.getElementById("login-section").classList.contains("hidden")) {
+    if (!document.getElementById("admin-section").classList.contains("hidden") || 
+        !document.getElementById("kitchen-section").classList.contains("hidden")) {
+      return; // Avoids redundant calls
+    }
       checkUserRole(user.uid);
     }
-  } else {
+  else {
     console.log("❌ No user logged in - Firestore access will fail");
   }
 });
@@ -273,7 +276,7 @@
   document.getElementById("kitchen-section").classList.remove("hidden");
 } else {
   showError("Unknown role. Contact admin.");
-}
+  }
 } 
   
    // Login Functionality using Firebase Authentication
@@ -367,9 +370,11 @@ function fetchProcessMasters() {
 
  
 // ✅ Call this function when the page loads
-fetchFoodItems();
-fetchUOMList();
-fetchProcessMasters();
+document.addEventListener("DOMContentLoaded", function () {
+  fetchFoodItems();
+  fetchUOMList();
+  fetchProcessMasters();
+});
 
    
 //...................Render Masters.................   
@@ -393,20 +398,17 @@ fetchProcessMasters();
   });
 }
    
-   function renderUOMList() {
-  onSnapshot(collection(db, "uom_list"), (snapshot) => {
-    const ul = document.getElementById("uom-list");
-    ul.innerHTML = ""; // Clear the existing list before updating
+   function renderUOMList(uomList) {
+  const ul = document.getElementById("uom-list");
+  ul.innerHTML = ""; // Clear existing list before updating
 
-    snapshot.forEach((doc) => {
-      const uom = doc.data().name;
-      const li = document.createElement("li");
-      li.innerHTML = `
-        ${uom} 
-        <button class="clear-btn" onclick="deleteUOM('${doc.id}')">Delete</button>
-      `;
-      ul.appendChild(li);
-    });
+  uomList.forEach((uom) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      ${uom} 
+      <button class="clear-btn" onclick="deleteUOM('${uom}')">Delete</button>
+    `;
+    ul.appendChild(li);
   });
 }
 
