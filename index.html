@@ -274,7 +274,7 @@
 } else {
   showError("Unknown role. Contact admin.");
 }
-  } 
+} 
   
    // Login Functionality using Firebase Authentication
   document.getElementById("login-form").addEventListener("submit", async (event) => {
@@ -297,8 +297,7 @@
     
     // Call function to fetch user role and redirect
     checkUserRole(user.uid);
-      
-  } catch (error) {
+   } catch (error) {
     console.error("❌ Login Failed:", error.code, error.message);
     document.getElementById("error-message").innerText = "Login failed: " + error.message;
     alert("Login Failed: " + error.message);
@@ -453,7 +452,6 @@ async function deleteprocessmaster(processmasterId) {
     alert("Process master deleted successfully!");
   }
 }
-     
    
  </script>
 
