@@ -409,7 +409,7 @@ async function fetchUOMList() {
   try {
     const snapshot = await getDocs(collection(db, "uom_list"));
     const uomList = snapshot.docs.map(doc => doc.data().name);
-    return uomList; // ✅ Now it returns the UOM list
+    render(uomList); // ✅ Now it returns the UOM list
   } catch (error) {
     console.error("❌ Firestore Error:", error);
     alert("Failed to fetch UOM List. Please check Firestore rules.");
