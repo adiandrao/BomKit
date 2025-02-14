@@ -235,6 +235,10 @@
    onAuthStateChanged(auth, (user) => {
   if (user) {
     console.log("✅ User is logged in:", user.uid);
+    // Prevents running onAuthStateChanged when logging in manually
+    if (!document.getElementById("login-section").classList.contains("hidden")) {
+      checkUserRole(user.uid);
+    }
   } else {
     console.log("❌ No user logged in - Firestore access will fail");
   }
