@@ -407,15 +407,15 @@ async function fetchFoodItems() {
 // ✅ Fetch UOM List
 async function fetchUOMList() {
   try {
-    const snapshot = await getDocs(collection(db, "uom_list"));
-    const uomList = snapshot.docs.map(doc => doc.data().name);
-    renderUOMList(uomList); // ✅ Now it returns the UOM list
-    return uomList; // ✅ Now it returns the UOM list
-  } catch (error) {
-    console.error("❌ Firestore Error:", error);
-    alert("Failed to fetch UOM List. Please check Firestore rules.");
-    return []; // Return an empty array if an error occurs
-  }
+        onSnapshot(collection(db, "uom_list"), (snapshot) => {
+            const uomList = snapshot.docs.map(doc => doc.data().name);
+            console.log("Live UOM List:", uomList);
+            renderUOMList(uomList); // ✅ Update UI dynamically
+        });
+    } catch (error) {
+        console.error("❌ Firestore Error:", error);
+        alert("Failed to fetch UOM List. Please check Firestore rules.");
+    }
 }
 
 
