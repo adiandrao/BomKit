@@ -239,6 +239,18 @@
     console.log("❌ No user logged in - Firestore access will fail");
   }
 });
+
+   async function loginUser(email, password) {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    console.log("✅ Login Success:", userCredential.user);
+  } catch (error) {
+    console.error("❌ Login Failed:", error.code, "-", error.message);
+    alert("Login Failed: " + error.message);
+  }
+}
+
+loginUser("hanuma@adiandrao.com", "adi.2017"); // ✅ Replace with actual credentials
    
   const db = getFirestore(app);
 
@@ -260,7 +272,13 @@
       // Authenticate user with Firebase Authentication
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user; // Extract authenticated user details
-      console.log("User logged in:", user);
+      console.log("✅ Login Success:", user);
+    alert("Login Successful!");
+  } catch (error) {
+    console.error("❌ Login Failed:", error.code, error.message);
+    alert("Login Failed: " + error.message);
+  }
+});
 
       // Retrieve user role from Firestore using UID as document ID
       const userDoc = await getDoc(doc(db, "users", user.uid));
