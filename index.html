@@ -271,9 +271,11 @@
     if (userData.role === "admin") {
   document.getElementById("login-section").classList.add("hidden");
   document.getElementById("admin-section").classList.remove("hidden");
+  document.getElementById("admin-section").style.display = "block"; // 🔥 Force it to show
 } else if (userData.role === "kitchen") {
   document.getElementById("login-section").classList.add("hidden");
   document.getElementById("kitchen-section").classList.remove("hidden");
+  document.getElementById("kitchen-section").style.display = "block";
 } else {
   showError("Unknown role. Contact admin.");
   }
