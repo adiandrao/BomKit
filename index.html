@@ -277,7 +277,10 @@
 } else {
   showError("Unknown role. Contact admin.");
   }
-} 
+} else {
+      showError("No user data found. Contact admin.");
+    }
+}
   
    // Login Functionality using Firebase Authentication
   document.getElementById("login-form").addEventListener("submit", async (event) => {
