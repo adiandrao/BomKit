@@ -281,27 +281,28 @@ loginUser("hanuma@adiandrao.com", "adi.2017"); // ✅ Replace with actual creden
 });
 
       // Retrieve user role from Firestore using UID as document ID
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      if (userDoc.exists()) {
-        const userData = userDoc.data(); // Extract user role information
-        
-        // Show respective dashboard based on user role
-        if (userData.role === "admin") {
-          document.getElementById("login-section").style.display = "none";
-          document.getElementById("admin-section").style.display = "block";
-        } else if (userData.role === "kitchen") {
-          document.getElementById("login-section").style.display = "none";
-          document.getElementById("kitchen-section").style.display = "block";
-        } else {
-          showError("Unknown role. Contact admin.");
-        }
-       else {
-        showError("User role not found in Firestore! Please contact admin.");
-      }
-     catch (error) {
-      showError("Login failed: " + error.message); // Display authentication errors
+    try {
+  const userDoc = await getDoc(doc(db, "users", user.uid));
+  if (userDoc.exists()) {
+    const userData = userDoc.data(); // Extract user role information
+
+    // Show respective dashboard based on user role
+    if (userData.role === "admin") {
+      document.getElementById("login-section").style.display = "none";
+      document.getElementById("admin-section").style.display = "block";
+    } else if (userData.role === "kitchen") {
+      document.getElementById("login-section").style.display = "none";
+      document.getElementById("kitchen-section").style.display = "block";
+    } else {
+      showError("Unknown role. Contact admin.");
     }
-  });
+  } else {
+    showError("User role not found in Firestore! Please contact admin.");
+  }
+} catch (error) {
+  showError("Login failed: " + error.message); // Display authentication errors
+}
+
 
   // Logout Functionality for Admin
   document.getElementById("admin-logout-btn").addEventListener("click", async () => {
