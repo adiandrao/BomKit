@@ -384,6 +384,8 @@ document.addEventListener("DOMContentLoaded", function () {
   fetchProcessMasters();
 });
 
+
+   
    
 //...................Render Masters.................   
   function renderFoodItems(foodItems) {
@@ -797,8 +799,8 @@ async function deleteprocessmaster(processmasterId) {
       document.getElementById("items-list-view").classList.remove("hidden");
       currentEditKey = null;
     });
-    function resetIngredients() {
-      const container = document.getElementById("ingredients-container");
+    async function resetIngredients() {
+      const container = document.getElementById("ingredients");
       container.innerHTML = `
         <h3>Ingredients</h3>
         <div class="ingredient-row">
@@ -812,6 +814,10 @@ async function deleteprocessmaster(processmasterId) {
       `;
       const defaultSelect = container.querySelector(".ingredient-unit");
       defaultSelect.innerHTML = `<option value="">Select UOM</option>` + fetchUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("");
+       const uomList = await fetchUOMList(); // ✅ Wait for the UOM data
+        defaultSelect.innerHTML = `<option value="">Select UOM</option>` + 
+        uomList.map(uom => `<option value="${uom}">${uom}</option>`).join("");
+      // Remove ingredient button event listener
       container.querySelector(".remove-ingredient").addEventListener("click", function() {
         const row = this.closest(".ingredient-row");
         if(row) row.remove();
