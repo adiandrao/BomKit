@@ -250,7 +250,37 @@
     errorDiv.style.display = "block"; // Make the error message visible
   }
 
-  // Login Functionality using Firebase Authentication
+  // Retrieve user role from Firestore using UID as document ID
+  
+  async function checkUserRole(userId) {
+  console.log("🔍 Checking user role for UID:", userId);
+   
+   try {
+  const userDoc = await getDoc(doc(db, "users", user.uid));
+  if (userDoc.exists()) {
+    const userData = userDoc.data(); // Extract user role information
+    console.log("✅ User Role:", userData.role);
+
+    // Show respective dashboard based on user role
+    if (userData.role === "admin") {
+      document.getElementById("login-section").style.display = "none";
+      document.getElementById("admin-section").style.display = "block";
+    } else if (userData.role === "kitchen") {
+      document.getElementById("login-section").style.display = "none";
+      document.getElementById("kitchen-section").style.display = "block";
+    } else {
+      showError("Unknown role. Contact admin.");
+    }
+  } else {
+    showError("User role not found in Firestore! Please contact admin.");
+  }
+} catch (error) {
+  showError("Login failed: " + error.message); // Display authentication errors
+  }
+}
+   
+   
+   // Login Functionality using Firebase Authentication
   document.getElementById("login-form").addEventListener("submit", async (event) => {
     event.preventDefault(); // Prevent default form submission
 
@@ -279,36 +309,7 @@
   }
 });
 
-      // Retrieve user role from Firestore using UID as document ID
   
-  async function checkUserRole(userId) {
-  console.log("🔍 Checking user role for UID:", userId);
-   
-   try {
-  const userDoc = await getDoc(doc(db, "users", user.uid));
-  if (userDoc.exists()) {
-    const userData = userDoc.data(); // Extract user role information
-    console.log("✅ User Role:", userData.role);
-
-    // Show respective dashboard based on user role
-    if (userData.role === "admin") {
-      document.getElementById("login-section").style.display = "none";
-      document.getElementById("admin-section").style.display = "block";
-    } else if (userData.role === "kitchen") {
-      document.getElementById("login-section").style.display = "none";
-      document.getElementById("kitchen-section").style.display = "block";
-    } else {
-      showError("Unknown role. Contact admin.");
-    }
-  } else {
-    showError("User role not found in Firestore! Please contact admin.");
-  }
-} catch (error) {
-  showError("Login failed: " + error.message); // Display authentication errors
-  }
-}
-
-
   // Logout Functionality for Admin
   document.getElementById("admin-logout-btn").addEventListener("click", async () => {
     await signOut(auth); // Sign out the user
