@@ -259,12 +259,22 @@
 
     try {
       // Authenticate user with Firebase Authentication
+      console.log("Attempting login...");
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      
+      if (!userCredential || !userCredential.user) {
+      throw new Error("User credential is undefined.");
+    }
       const user = userCredential.user; // Extract authenticated user details
-      console.log("✅ Login Success:", user);
+      console.log("✅ Login Success. User ID:", user.uid);
     alert("Login Successful!");
+    
+    // Call function to fetch user role and redirect
+    checkUserRole(user.uid);
+      
   } catch (error) {
     console.error("❌ Login Failed:", error.code, error.message);
+    document.getElementById("error-message").innerText = "Login failed: " + error.message;
     alert("Login Failed: " + error.message);
   }
 });
@@ -274,6 +284,7 @@
   const userDoc = await getDoc(doc(db, "users", user.uid));
   if (userDoc.exists()) {
     const userData = userDoc.data(); // Extract user role information
+    console.log("✅ User Role:", userData.role);
 
     // Show respective dashboard based on user role
     if (userData.role === "admin") {
