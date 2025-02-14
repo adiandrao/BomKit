@@ -219,7 +219,7 @@
   // Import Firebase SDK (v11.3.1)
   // ✅ Import Firebase SDK (Including getApps)
   import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
   import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 
   // Firebase Configuration (Replace with your credentials)
@@ -232,6 +232,14 @@
   console.log("Firebase App Status:", app); // Debugging
 
   const auth = getAuth(app);
+   onAuthStateChanged(auth, (user) => {
+  if (user) {
+    console.log("✅ User is logged in:", user.uid);
+  } else {
+    console.log("❌ No user logged in - Firestore access will fail");
+  }
+});
+   
   const db = getFirestore(app);
 
   // Function to display error messages in the UI
