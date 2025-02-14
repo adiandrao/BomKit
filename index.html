@@ -295,10 +295,10 @@ loginUser("hanuma@adiandrao.com", "adi.2017"); // ✅ Replace with actual creden
         } else {
           showError("Unknown role. Contact admin.");
         }
-      } else {
+       else {
         showError("User role not found in Firestore! Please contact admin.");
       }
-    } catch (error) {
+     catch (error) {
       showError("Login failed: " + error.message); // Display authentication errors
     }
   });
