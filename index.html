@@ -255,25 +255,23 @@
   async function checkUserRole(userId) {
   console.log("🔍 Checking user role for UID:", userId);
    
-  const userDoc = await getDoc(doc(db, "users", user.uid));
+  const userDoc = await getDoc(doc(db, "users", userId));
   if (userDoc.exists()) {
     const userData = userDoc.data(); // Extract user role information
     console.log("✅ User Role:", userData.role);
 
     // Show respective dashboard based on user role
     if (userData.role === "admin") {
-      document.getElementById("login-section").style.display = "none";
-      document.getElementById("admin-section").style.display = "block";
-    } else if (userData.role === "kitchen") {
-      document.getElementById("login-section").style.display = "none";
-      document.getElementById("kitchen-section").style.display = "block";
-    } else {
-      showError("Unknown role. Contact admin.");
-    }
-  } else {
-    showError("User role not found in Firestore! Please contact admin.");
-  }
+  document.getElementById("login-section").classList.add("hidden");
+  document.getElementById("admin-section").classList.remove("hidden");
+} else if (userData.role === "kitchen") {
+  document.getElementById("login-section").classList.add("hidden");
+  document.getElementById("kitchen-section").classList.remove("hidden");
+} else {
+  showError("Unknown role. Contact admin.");
 }
+  } 
+
    
    
    // Login Functionality using Firebase Authentication
@@ -453,9 +451,7 @@ async function deleteprocessmaster(processmasterId) {
     alert("Process master deleted successfully!");
   }
 }
-  
-   
-   
+     
    
  </script>
 
