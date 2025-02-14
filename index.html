@@ -327,7 +327,65 @@
     location.reload(); // Refresh the page
   });
 
-  //...................Master Management......................
+
+   //...................Render Masters.................   
+  function renderFoodItems(foodItems) {
+  const tbody = document.querySelector("#bom-list-table tbody");
+  tbody.innerHTML = "";
+
+  Object.keys(foodItems).forEach((key) => {
+    const foodItem = foodItems[key];
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${foodItem.name}</td>
+      <td>${foodItem.baseQty} ${foodItem.baseUOM}</td>
+      <td>${foodItem.ingredients.length}</td>
+      <td>
+        <button class="action-btn edit-btn" onclick="editFoodItem('${key}')">Edit</button>
+        <button class="action-btn delete-btn" onclick="deleteFoodItem('${key}')">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+   
+   function renderUOMList(uomList) {
+  const ul = document.getElementById("uom-list");
+  ul.innerHTML = ""; // Clear existing list before updating
+
+  uomList.forEach((uom) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      ${uom} 
+      <button class="clear-btn" onclick="deleteUOM('${uom}')">Delete</button>
+    `;
+    ul.appendChild(li);
+  });
+}
+
+   function renderProcessMasters(processMasters) {
+      const tbody = document.getElementById("process-table-body");
+  tbody.innerHTML = "";
+
+  Object.keys(processMasters).forEach((key) => {
+    const proc = processMasters[key];
+    const stepsText = proc.steps.join("<br>");
+    
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${proc.foodItem}</td>
+      <td>${stepsText}</td>
+      <td>
+        <button class="action-btn edit-btn" onclick="editProcess('${key}')">Edit</button>
+        <button class="action-btn delete-btn" onclick="deleteProcess('${key}')">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+   
+   //...................Master Management......................
      // ✅ Fetch and Render masters from Firestore
 
    // ✅ Fetch Food Items in Real-Time
@@ -384,65 +442,7 @@ document.addEventListener("DOMContentLoaded", function () {
   fetchProcessMasters();
 });
 
-
    
-   
-//...................Render Masters.................   
-  function renderFoodItems(foodItems) {
-  const tbody = document.querySelector("#bom-list-table tbody");
-  tbody.innerHTML = "";
-
-  Object.keys(foodItems).forEach((key) => {
-    const foodItem = foodItems[key];
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${foodItem.name}</td>
-      <td>${foodItem.baseQty} ${foodItem.baseUOM}</td>
-      <td>${foodItem.ingredients.length}</td>
-      <td>
-        <button class="action-btn edit-btn" onclick="editFoodItem('${key}')">Edit</button>
-        <button class="action-btn delete-btn" onclick="deleteFoodItem('${key}')">Delete</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-   
-   function renderUOMList(uomList) {
-  const ul = document.getElementById("uom-list");
-  ul.innerHTML = ""; // Clear existing list before updating
-
-  uomList.forEach((uom) => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      ${uom} 
-      <button class="clear-btn" onclick="deleteUOM('${uom}')">Delete</button>
-    `;
-    ul.appendChild(li);
-  });
-}
-
-   function renderProcessMasters(processMasters) {
-      const tbody = document.getElementById("process-table-body");
-  tbody.innerHTML = "";
-
-  Object.keys(processMasters).forEach((key) => {
-    const proc = processMasters[key];
-    const stepsText = proc.steps.join("<br>");
-    
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${proc.foodItem}</td>
-      <td>${stepsText}</td>
-      <td>
-        <button class="action-btn edit-btn" onclick="editProcess('${key}')">Edit</button>
-        <button class="action-btn delete-btn" onclick="deleteProcess('${key}')">Delete</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
 //...................Manage Delete Masters................. 
 async function deleteUOM(uomId) {
   if (confirm("Are you sure you want to delete this UOM?")) {
