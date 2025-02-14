@@ -223,15 +223,8 @@
   import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
 
   // Firebase Configuration (Replace with your credentials)
-  const firebaseConfig = {
-    apiKey: "AIzaSyAhbi8DUORRyvmF9NkupHpbwcvpKjuB22Q",
-    authDomain: "bomkit-41713.firebaseapp.com",
-    projectId: "bomkit-41713",
-    storageBucket: "bomkit-41713.firebasestorage.app", 
-    messagingSenderId: "1049877683664",
-    appId: "1:1049877683664:web:d22ea4dbec7f62712b2dd5",
-    measurementId: "G-24X6FCSGFT"
-  };
+  import { firebaseConfig } from "./firebaseConfig.js";
+
 
   // Initialize Firebase
   // ✅ Only initialize if Firebase App doesn't already exist
@@ -308,6 +301,10 @@ function fetchFoodItems() {
     });
     renderFoodItems(foodItems); // Call UI update function
   });
+} catch (error) {
+    console.error("Firestore Error:", error);
+    alert("Failed to fetch food items. Please check Firestore rules.");
+  }
 }
 
 // ✅ Fetch UOM List
@@ -316,6 +313,10 @@ function fetchUOMList() {
     const uomList = snapshot.docs.map(doc => doc.data().name);
     renderUOMList(uomList);
   });
+} catch (error) {
+    console.error("Firestore Error:", error);
+    alert("Failed to fetch UOM List. Please check Firestore rules.");
+  }
 }
 
 // ✅ Fetch Process Masters in Real-Time
@@ -327,8 +328,19 @@ function fetchProcessMasters() {
     });
     renderProcessMasters(processMasters);
   });
+} catch (error) {
+    console.error("Firestore Error:", error);
+    alert("Failed to fetch Process Masters. Please check Firestore rules.");
+  }
 }
-  
+
+ 
+// ✅ Call this function when the page loads
+fetchFoodItems();
+fetchUOMList();
+fetchProcessMasters();
+
+   
 //...................Render Masters.................   
   function renderFoodItems(foodItems) {
   const tbody = document.querySelector("#bom-list-table tbody");
@@ -388,12 +400,31 @@ function fetchProcessMasters() {
   });
 }
 
-// ✅ Call this function when the page loads
-fetchFoodItems();
-fetchUOMList();
-fetchProcessMasters();
+//...................Manage Delete Masters................. 
+async function deleteUOM(uomId) {
+  if (confirm("Are you sure you want to delete this UOM?")) {
+    await deleteDoc(doc(db, "uom_list", uomId));
+    alert("UOM deleted successfully!");
+  }
+}
 
- 
+async function deleteFoodItem(foodItemId) {
+  if (confirm("Are you sure you want to delete this food item?")) {
+    await deleteDoc(doc(db, "food_items", foodItemId));
+    alert("Food Item deleted successfully!");
+  }
+}
+
+async function deleteprocessmaster(processmasterId) {
+  if (confirm("Are you sure you want to delete this processmaster?")) {
+    await deleteDoc(doc(db, "process_masters", processmasterId));
+    alert("Process master deleted successfully!");
+  }
+}
+  
+   
+   
+   
  </script>
 
 <!-- Error Message Display -->
@@ -641,11 +672,11 @@ fetchProcessMasters();
        
     /* ------------------ Admin Dashboard & Navigation ------------------ */
     function showDashboard() {
-      const bomMasters = getBOMMasters();
+      const bomMasters = fetchFoodItems();
       document.getElementById("item-count").innerText = Object.keys(bomMasters).length;
-      const uomList = getUOMList();
+      const uomList = fetchUOMList();
       document.getElementById("uom-count").innerText = uomList.length;
-      const processMasters = getProcessMasters();
+      const processMasters = fetchProcessMasters();
       document.getElementById("process-count").innerText = Object.keys(processMasters).length;
       document.getElementById("admin-dashboard").style.display = "block";
       document.getElementById("admin-items-section").classList.add("hidden");
@@ -742,21 +773,21 @@ fetchProcessMasters();
         </div>
       `;
       const defaultSelect = container.querySelector(".ingredient-unit");
-      defaultSelect.innerHTML = `<option value="">Select UOM</option>` + getUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("");
+      defaultSelect.innerHTML = `<option value="">Select UOM</option>` + fetchUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("");
       container.querySelector(".remove-ingredient").addEventListener("click", function() {
         const row = this.closest(".ingredient-row");
         if(row) row.remove();
       });
     }
     function renderItemMasterOptions() {
-      const uomOptions = getUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("");
+      const uomOptions = fetchUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("");
       document.getElementById("baseUOM").innerHTML = `<option value="">Select UOM</option>${uomOptions}`;
       document.querySelectorAll(".ingredient-unit").forEach(select => {
         select.innerHTML = `<option value="">Select UOM</option>${uomOptions}`;
       });
     }
     function createIngredientRow() {
-      const uomOptions = getUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("");
+      const uomOptions = fetchUOMList().map(uom => `<option value="${uom}">${uom}</option>`).join("");
       const row = document.createElement("div");
       row.className = "ingredient-row";
       row.innerHTML = `
@@ -799,7 +830,7 @@ fetchProcessMasters();
         }
         ingredients.push({ name, qty, unit });
       }
-      let bomMasters = getBOMMasters();
+      let bomMasters = fetchFoodItems();
       const key = currentEditKey ? currentEditKey : foodItemName.toLowerCase();
       bomMasters[key] = { foodItem: foodItemName, baseQty: baseQty, baseUOM: baseUOM, ingredients: ingredients };
       saveBOMMasters(bomMasters);
@@ -820,7 +851,7 @@ fetchProcessMasters();
       const target = event.target;
       if (target.classList.contains("edit-btn")) {
         const key = target.getAttribute("data-key");
-        const bomMasters = getBOMMasters();
+        const bomMasters = fetchFoodItems();
         const bom = bomMasters[key];
         if (bom) {
           currentEditKey = key;
@@ -836,7 +867,7 @@ fetchProcessMasters();
             row.querySelector(".ingredient-qty").value = ing.qty;
             const select = row.querySelector(".ingredient-unit");
             select.innerHTML = `<option value="">Select UOM</option>` +
-              getUOMList().map(uom => `<option value="${uom}" ${ing.unit===uom?"selected":""}>${uom}</option>`).join("");
+              fetchUOMList().map(uom => `<option value="${uom}" ${ing.unit===uom?"selected":""}>${uom}</option>`).join("");
             container.appendChild(row);
           });
           document.getElementById("items-list-view").classList.add("hidden");
@@ -845,7 +876,7 @@ fetchProcessMasters();
       } else if (target.classList.contains("delete-btn")) {
         const key = target.getAttribute("data-key");
         if (confirm("Are you sure you want to delete this Food Item Master?")) {
-          let bomMasters = getBOMMasters();
+          let bomMasters = fetchFoodItems();
           delete bomMasters[key];
           saveBOMMasters(bomMasters);
           refreshBOMList();
@@ -863,7 +894,7 @@ fetchProcessMasters();
       event.preventDefault();
       const newUOM = document.getElementById("new-uom").value.trim();
       if (!newUOM) { alert("Enter a valid UOM."); return; }
-      const uomList = getUOMList();
+      const uomList = fetchUOMList();
       if (uomList.includes(newUOM)) { alert("UOM already exists!"); return; }
       uomList.push(newUOM);
       saveUOMList(uomList);
@@ -875,7 +906,7 @@ fetchProcessMasters();
     let currentProcessKey = null;
     // Populate the Process Master Food Item dropdown from BOM masters
     function populateProcessFoodItems() {
-      const bomMasters = getBOMMasters();
+      const bomMasters = fetchFoodItems();
       const select = document.getElementById("processFoodItem");
       select.innerHTML = `<option value="">Select Food Item</option>`;
       for (const key in bomMasters) {
@@ -948,7 +979,7 @@ fetchProcessMasters();
         alert("Please enter at least one process step.");
         return;
       }
-      let processMasters = getProcessMasters();
+      let processMasters = fetchProcessMasters();
       processMasters[foodItem] = { processes: steps };
       saveProcessMasters(processMasters);
       alert("Process Master saved for " + foodItem);
@@ -966,7 +997,7 @@ fetchProcessMasters();
       const target = e.target;
       if (target.classList.contains("edit-btn")) {
         const key = target.getAttribute("data-key");
-        const processMasters = getProcessMasters();
+        const processMasters = fetchProcessMasters();
         const proc = processMasters[key];
         if (proc) {
           currentProcessKey = key;
@@ -993,7 +1024,7 @@ fetchProcessMasters();
       } else if (target.classList.contains("delete-btn")) {
         const key = target.getAttribute("data-key");
         if (confirm("Are you sure you want to delete this Process Master?")) {
-          let processMasters = getProcessMasters();
+          let processMasters = fetchProcessMasters();
           delete processMasters[key];
           saveProcessMasters(processMasters);
           renderProcessMasters();
@@ -1024,7 +1055,7 @@ fetchProcessMasters();
       const prodQty = parseFloat(document.getElementById("prodQty").value);
       if (!foodItemKey) { alert("Please select a food item."); return; }
       if (isNaN(prodQty) || prodQty <= 0) { alert("Please enter a valid production quantity."); return; }
-      const bomMasters = getBOMMasters();
+      const bomMasters = fetchFoodItems();
       const bom = bomMasters[foodItemKey];
       if (!bom) { alert("Food Item Master not found."); return; }
       const factor = prodQty / bom.baseQty;
@@ -1063,20 +1094,21 @@ fetchProcessMasters();
       window.print();
     });
     function populateFoodItems() {
-      const bomMasters = getBOMMasters();
-      const select = document.getElementById("foodItemSelect");
-      select.innerHTML = `<option value="">Select Food Item</option>`;
-      for (const key in bomMasters) {
-        if (bomMasters.hasOwnProperty(key)) {
-          const option = document.createElement("option");
-          option.value = key;
-          option.textContent = bomMasters[key].foodItem;
-          select.appendChild(option);
-        }
-      }
-    }
+  getDocs(collection(db, "food_items")).then((querySnapshot) => {
+    const select = document.getElementById("foodItemSelect");
+    select.innerHTML = `<option value="">Select Food Item</option>`;
+    
+    querySnapshot.forEach((doc) => {
+      const option = document.createElement("option");
+      option.value = doc.id;
+      option.textContent = doc.data().name;
+      select.appendChild(option);
+    });
+  });
+}
+
     function populateCookFoodItems() {
-      const bomMasters = getBOMMasters();
+      const bomMasters = fetchFoodItems();
       const select = document.getElementById("cookFoodItem");
       select.innerHTML = `<option value="">Select Food Item</option>`;
       for (const key in bomMasters) {
@@ -1092,7 +1124,7 @@ fetchProcessMasters();
       const selectedKey = this.value;
       const prodQtyLabel = document.getElementById("prodQty-label");
       if (selectedKey) {
-        const bom = getBOMMasters()[selectedKey];
+        const bom = fetchFoodItems()[selectedKey];
         if (bom) { prodQtyLabel.innerText = `Enter Production Quantity (in ${bom.baseUOM}):`; }
       } else { prodQtyLabel.innerText = "Enter Production Quantity:"; }
     });
@@ -1100,7 +1132,7 @@ fetchProcessMasters();
       const selectedKey = this.value;
       const cookUOMSpan = document.getElementById("cookUOM");
       if (selectedKey) {
-        const bom = getBOMMasters()[selectedKey];
+        const bom = fetchFoodItems()[selectedKey];
         cookUOMSpan.innerText = bom ? bom.baseUOM : "";
       } else { cookUOMSpan.innerText = ""; }
     });
@@ -1125,7 +1157,7 @@ fetchProcessMasters();
       const cookQty = parseFloat(document.getElementById("cookQty").value);
       if (!foodItemKey) { alert("Please select a food item."); return; }
       if (isNaN(cookQty) || cookQty <= 0) { alert("Please enter a valid quantity."); return; }
-      const processMasters = getProcessMasters();
+      const processMasters = fetchProcessMasters();
       const proc = processMasters[foodItemKey];
       if (!proc) { alert("No cooking process defined for this food item."); return; }
       const tbody = document.getElementById("process-steps-body");
