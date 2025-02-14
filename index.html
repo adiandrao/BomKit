@@ -267,7 +267,7 @@
     }
       const user = userCredential.user; // Extract authenticated user details
       console.log("✅ Login Success. User ID:", user.uid);
-    alert("Login Successful!");
+      //alert("Login Successful!");
     
     // Call function to fetch user role and redirect
     checkUserRole(user.uid);
@@ -280,7 +280,11 @@
 });
 
       // Retrieve user role from Firestore using UID as document ID
-    try {
+  
+  async function checkUserRole(userId) {
+  console.log("🔍 Checking user role for UID:", userId);
+   
+   try {
   const userDoc = await getDoc(doc(db, "users", user.uid));
   if (userDoc.exists()) {
     const userData = userDoc.data(); // Extract user role information
@@ -301,6 +305,7 @@
   }
 } catch (error) {
   showError("Login failed: " + error.message); // Display authentication errors
+  }
 }
 
 
