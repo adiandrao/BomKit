@@ -240,18 +240,7 @@
   }
 });
 
-   async function loginUser(email, password) {
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    console.log("✅ Login Success:", userCredential.user);
-  } catch (error) {
-    console.error("❌ Login Failed:", error.code, "-", error.message);
-    alert("Login Failed: " + error.message);
-  }
-}
-
-loginUser("hanuma@adiandrao.com", "adi.2017"); // ✅ Replace with actual credentials
-   
+ 
   const db = getFirestore(app);
 
   // Function to display error messages in the UI
