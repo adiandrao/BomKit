@@ -331,19 +331,19 @@
      // ✅ Fetch and Render masters from Firestore
 
    // ✅ Fetch Food Items in Real-Time
-function fetchFoodItems() {
-  try {
-  onSnapshot(collection(db, "food_items"), (snapshot) => {
-    const foodItems = {};
-    snapshot.forEach((doc) => {
-      foodItems[doc.id] = doc.data();
-    });
-    renderFoodItems(foodItems); // Call UI update function
-  });
-} catch (error) {
-    console.error("❌ Firestore Error:", error);
-    alert("Failed to fetch food items. Please check Firestore rules.");
-  }
+async function fetchFoodItems() {
+    try {
+        const snapshot = await getDocs(collection(db, "food_items"));
+        const foodItems = {};
+        snapshot.forEach((doc) => {
+            foodItems[doc.id] = doc.data();
+        });
+        return foodItems;
+    } catch (error) {
+        console.error("❌ Firestore Error:", error);
+        alert("Failed to fetch food items. Please check Firestore rules.");
+        return {};
+    }
 }
 
 // ✅ Fetch UOM List
@@ -709,8 +709,8 @@ async function deleteprocessmaster(processmasterId) {
     
        
     /* ------------------ Admin Dashboard & Navigation ------------------ */
-    function showDashboard() {
-      const bomMasters = fetchFoodItems();
+    async function showDashboard() {
+      const bomMasters = await fetchFoodItems();
       document.getElementById("item-count").innerText = Object.keys(bomMasters).length;
       const uomList = fetchUOMList();
       document.getElementById("uom-count").innerText = uomList.length;
